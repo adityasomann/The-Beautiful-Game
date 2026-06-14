@@ -8,7 +8,7 @@
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
           <div>
             <div style="font-size:11px;letter-spacing:3px;color:#60a5fa;text-transform:uppercase;margin-bottom:4px">Group Standings</div>
-            <h2 style="margin:0 0 4px;font-size:24px;color:#f1f5f9;font-family:Georgia,serif">{{ GROUP_FLAGS[groupPopup] }} {{ groupPopup }}</h2>
+            <h2 style="margin:0 0 4px;font-size:24px;color:#f1f5f9;font-family:Georgia,serif">{{ groupPopup }}</h2>
             <div style="font-size:12px;color:#64748b">
               {{ standingsData.matchCounts[groupPopup]?.played ?? 0 }} / {{ standingsData.matchCounts[groupPopup]?.total ?? 6 }} matches played
             </div>
@@ -203,7 +203,7 @@
                   <span v-if="m.group" :style="{...badgeStyle(m.stage),cursor:'pointer'}"
                     @click.stop="groupPopup=m.group"
                     @mouseenter="e=>e.currentTarget.style.opacity='0.75'"
-                    @mouseleave="e=>e.currentTarget.style.opacity='1'">{{ GROUP_FLAGS[m.group] }} {{ m.group }}</span>
+                    @mouseleave="e=>e.currentTarget.style.opacity='1'">{{ m.group }}</span>
                   <span :style="badgeStyle(m.stage)">{{ m.stage }}</span>
                   <div @click="startEdit(m._origIdx)" title="Edit score"
                     style="color:#334155;font-size:13px;cursor:pointer;padding:2px 6px;border-radius:4px;transition:color 0.15s"
@@ -301,11 +301,6 @@ const COUNTRY_FLAGS = {
   "England":"🏴󠁧󠁢󠁥󠁮󠁧󠁿","Croatia":"🇭🇷","Ghana":"🇬🇭","Panama":"🇵🇦",
 }
 
-const GROUP_FLAGS = {
-  "Group A":"🇲🇽","Group B":"🇨🇦","Group C":"🇧🇷","Group D":"🇺🇸",
-  "Group E":"🇩🇪","Group F":"🇳🇱","Group G":"🇧🇪","Group H":"🇪🇸",
-  "Group I":"🇫🇷","Group J":"🇦🇷","Group K":"🇵🇹","Group L":"🏴󠁧󠁢󠁥󠁮󠁧󠁿",
-} 
 
 const STAGE_COLORS = {
   "Group Stage":  { accent:"#1e40af", badge:"#1d4ed8" },
