@@ -4,6 +4,9 @@
       <div v-for="[group, teams] in groupEntries" :key="group" class="group-block">
         <div class="group-head">
           <span class="group-name">{{ group }}</span>
+          <span v-if="matchCounts[group]" class="match-count">
+            {{ matchCounts[group].played }}/{{ matchCounts[group].total }}
+          </span>
           <span v-if="complete[group]" class="badge-final">FINAL</span>
           <span v-else-if="teams.some(t => t.P > 0)" class="badge-live">IN PROGRESS</span>
         </div>
@@ -60,8 +63,9 @@ import { computed } from 'vue'
 import { COUNTRY_FLAGS, GROUPS } from '../data/constants.js'
 
 const props = defineProps({
-  standings: { type: Object, required: true },
-  complete:  { type: Object, required: true },
+  standings:   { type: Object, required: true },
+  complete:    { type: Object, required: true },
+  matchCounts: { type: Object, default: () => ({}) },
 })
 
 const groupEntries = computed(() =>
@@ -112,6 +116,14 @@ function rowClass(pos) {
   letter-spacing: 2px;
   color: #60a5fa;
   font-weight: 600;
+}
+
+.match-count {
+  font-size: 10px;
+  color: #64748b;
+  letter-spacing: 0.5px;
+  margin-right: auto;
+  padding-left: 8px;
 }
 
 .badge-final {

@@ -12,7 +12,8 @@
       <div class="modal-header">
         <div>
           <div class="eyebrow">World Cup 2026 Squad</div>
-          <h2 id="squad-modal-title" class="title">{{ country }}</h2>
+          <h2 id="squad-modal-title" class="title">{{ COUNTRY_FLAGS[country] ?? '' }} {{ country }}</h2>
+          <div v-if="MANAGERS[country]" class="manager">Manager: <span>{{ MANAGERS[country] }}</span></div>
         </div>
         <button class="close-btn" aria-label="Close squad modal" @click="emit('close')">✕</button>
       </div>
@@ -46,7 +47,7 @@
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue'
 import { SQUADS } from '../data/squads.js'
-import { positions } from '../data/constants.js'
+import { positions, COUNTRY_FLAGS, MANAGERS } from '../data/constants.js'
 
 const props = defineProps({ country: String })
 const emit  = defineEmits(['close'])
@@ -158,6 +159,14 @@ function handleKeydown(e) {
   border-color: #3b5a9e;
   color: #94a3b8;
 }
+
+.manager {
+  font-size: 12px;
+  color: #64748b;
+  font-style: italic;
+  margin-top: 4px;
+}
+.manager span { color: #94a3b8; }
 
 .tba {
   text-align: center;
