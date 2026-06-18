@@ -134,7 +134,7 @@
         <div v-if="grouped.length===0" style="text-align:center;color:#475569;padding:60px 0;font-size:16px">No matches found.</div>
         <div v-for="[date, dayMatches] in grouped" :key="date" style="margin-bottom:32px">
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #1e3a6e33">
-            <div style="background:#1e40af;color:#fff;border-radius:6px;padding:4px 12px;font-size:11px;letter-spacing:2px;text-transform:uppercase">{{ dayMatches[0].day }}</div>
+            <div style="background:#1e40af;color:#fff;border-radius:6px;padding:4px 12px;font-size:11px;letter-spacing:2px;text-transform:uppercase">{{ getDay(dayMatches[0].date) }}</div>
             <div style="color:#94a3b8;font-size:15px;font-style:italic">{{ formatDateLabel(date) }}</div>
           </div>
           <div style="display:flex;flex-direction:column;gap:8px">
@@ -210,6 +210,9 @@
                     @mouseenter="e=>e.currentTarget.style.color='#60a5fa'"
                     @mouseleave="e=>e.currentTarget.style.color='#334155'">✎</div>
                 </div>
+                <div v-if="m.venue" style="width:100%;padding-top:6px;font-size:11px;color:#334155;letter-spacing:0.3px">
+                  📍 {{ m.venue }}
+                </div>
               </div>
 
             </template>
@@ -281,6 +284,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { SQUADS } from './data/squads.js'
+import { ALL_MATCHES } from './data/matches.js'
 
 const API_URL = 'https://wc2026.home/api'
 
@@ -372,121 +376,6 @@ const MANAGERS = {
   "Ghana":                "Carlos Queiroz",
   "Panama":               "Thomas Christiansen",
 }
-
-// ── Match data ────────────────────────────────────────────────────────────────
-
-const ALL_MATCHES = [
-  { date:"2026-06-11", day:"Thursday",  time:"2:00 PM CT",  group:"Group A", team1:"Mexico",              team2:"South Africa",       stage:"Group Stage" },
-  { date:"2026-06-11", day:"Thursday",  time:"9:00 PM CT",  group:"Group A", team1:"South Korea",         team2:"Czechia",            stage:"Group Stage" },
-  { date:"2026-06-12", day:"Friday",    time:"2:00 PM CT",  group:"Group B", team1:"Canada",              team2:"Bosnia & Herzegovina",stage:"Group Stage" },
-  { date:"2026-06-12", day:"Friday",    time:"8:00 PM CT",  group:"Group D", team1:"USA",                 team2:"Paraguay",           stage:"Group Stage" },
-  { date:"2026-06-13", day:"Saturday",  time:"2:00 PM CT",  group:"Group B", team1:"Qatar",               team2:"Switzerland",        stage:"Group Stage" },
-  { date:"2026-06-13", day:"Saturday",  time:"5:00 PM CT",  group:"Group C", team1:"Brazil",              team2:"Morocco",            stage:"Group Stage" },
-  { date:"2026-06-13", day:"Saturday",  time:"8:00 PM CT",  group:"Group C", team1:"Haiti",               team2:"Scotland",           stage:"Group Stage" },
-  { date:"2026-06-13", day:"Saturday",  time:"11:00 PM CT", group:"Group D", team1:"Australia",           team2:"Türkiye",            stage:"Group Stage" },
-  { date:"2026-06-14", day:"Sunday",    time:"12:00 PM CT", group:"Group E", team1:"Germany",             team2:"Curaçao",            stage:"Group Stage" },
-  { date:"2026-06-14", day:"Sunday",    time:"3:00 PM CT",  group:"Group F", team1:"Netherlands",         team2:"Japan",              stage:"Group Stage" },
-  { date:"2026-06-14", day:"Sunday",    time:"6:00 PM CT",  group:"Group E", team1:"Ivory Coast",         team2:"Ecuador",            stage:"Group Stage" },
-  { date:"2026-06-14", day:"Sunday",    time:"9:00 PM CT",  group:"Group F", team1:"Sweden",              team2:"Tunisia",            stage:"Group Stage" },
-  { date:"2026-06-15", day:"Monday",    time:"11:00 AM CT", group:"Group H", team1:"Spain",               team2:"Cape Verde",         stage:"Group Stage" },
-  { date:"2026-06-15", day:"Monday",    time:"2:00 PM CT",  group:"Group G", team1:"Belgium",             team2:"Egypt",              stage:"Group Stage" },
-  { date:"2026-06-15", day:"Monday",    time:"5:00 PM CT",  group:"Group H", team1:"Saudi Arabia",        team2:"Uruguay",            stage:"Group Stage" },
-  { date:"2026-06-15", day:"Monday",    time:"8:00 PM CT",  group:"Group G", team1:"Iran",                team2:"New Zealand",        stage:"Group Stage" },
-  { date:"2026-06-16", day:"Tuesday",   time:"2:00 PM CT",  group:"Group I", team1:"France",              team2:"Senegal",            stage:"Group Stage" },
-  { date:"2026-06-16", day:"Tuesday",   time:"5:00 PM CT",  group:"Group I", team1:"Iraq",                team2:"Norway",             stage:"Group Stage" },
-  { date:"2026-06-16", day:"Tuesday",   time:"8:00 PM CT",  group:"Group J", team1:"Argentina",           team2:"Algeria",            stage:"Group Stage" },
-  { date:"2026-06-16", day:"Tuesday",   time:"11:00 PM CT", group:"Group J", team1:"Austria",             team2:"Jordan",             stage:"Group Stage" },
-  { date:"2026-06-17", day:"Wednesday", time:"12:00 PM CT", group:"Group K", team1:"Portugal",            team2:"DR Congo",           stage:"Group Stage" },
-  { date:"2026-06-17", day:"Wednesday", time:"3:00 PM CT",  group:"Group L", team1:"England",             team2:"Croatia",            stage:"Group Stage" },
-  { date:"2026-06-17", day:"Wednesday", time:"6:00 PM CT",  group:"Group L", team1:"Ghana",               team2:"Panama",             stage:"Group Stage" },
-  { date:"2026-06-17", day:"Wednesday", time:"9:00 PM CT",  group:"Group K", team1:"Uzbekistan",          team2:"Colombia",           stage:"Group Stage" },
-  { date:"2026-06-17", day:"Wednesday", time:"11:00 PM CT", group:"Group A", team1:"Czechia",             team2:"South Africa",       stage:"Group Stage" },
-  { date:"2026-06-18", day:"Thursday",  time:"2:00 PM CT",  group:"Group B", team1:"Switzerland",         team2:"Bosnia & Herzegovina",stage:"Group Stage" },
-  { date:"2026-06-18", day:"Thursday",  time:"5:00 PM CT",  group:"Group B", team1:"Canada",              team2:"Qatar",              stage:"Group Stage" },
-  { date:"2026-06-18", day:"Thursday",  time:"8:00 PM CT",  group:"Group A", team1:"Mexico",              team2:"South Korea",        stage:"Group Stage" },
-  { date:"2026-06-19", day:"Friday",    time:"2:00 PM CT",  group:"Group D", team1:"USA",                 team2:"Australia",          stage:"Group Stage" },
-  { date:"2026-06-19", day:"Friday",    time:"5:00 PM CT",  group:"Group C", team1:"Scotland",            team2:"Morocco",            stage:"Group Stage" },
-  { date:"2026-06-19", day:"Friday",    time:"7:30 PM CT",  group:"Group C", team1:"Brazil",              team2:"Haiti",              stage:"Group Stage" },
-  { date:"2026-06-19", day:"Friday",    time:"10:00 PM CT", group:"Group D", team1:"Türkiye",             team2:"Paraguay",           stage:"Group Stage" },
-  { date:"2026-06-20", day:"Saturday",  time:"12:00 PM CT", group:"Group F", team1:"Netherlands",         team2:"Sweden",             stage:"Group Stage" },
-  { date:"2026-06-20", day:"Saturday",  time:"3:00 PM CT",  group:"Group E", team1:"Germany",             team2:"Ivory Coast",        stage:"Group Stage" },
-  { date:"2026-06-20", day:"Saturday",  time:"7:00 PM CT",  group:"Group E", team1:"Ecuador",             team2:"Curaçao",            stage:"Group Stage" },
-  { date:"2026-06-20", day:"Saturday",  time:"11:00 PM CT", group:"Group F", team1:"Tunisia",             team2:"Japan",              stage:"Group Stage" },
-  { date:"2026-06-21", day:"Sunday",    time:"11:00 AM CT", group:"Group H", team1:"Spain",               team2:"Saudi Arabia",       stage:"Group Stage" },
-  { date:"2026-06-21", day:"Sunday",    time:"2:00 PM CT",  group:"Group G", team1:"Belgium",             team2:"Iran",               stage:"Group Stage" },
-  { date:"2026-06-21", day:"Sunday",    time:"5:00 PM CT",  group:"Group H", team1:"Uruguay",             team2:"Cape Verde",         stage:"Group Stage" },
-  { date:"2026-06-21", day:"Sunday",    time:"8:00 PM CT",  group:"Group G", team1:"New Zealand",         team2:"Egypt",              stage:"Group Stage" },
-  { date:"2026-06-22", day:"Monday",    time:"12:00 PM CT", group:"Group J", team1:"Argentina",           team2:"Austria",            stage:"Group Stage" },
-  { date:"2026-06-22", day:"Monday",    time:"4:00 PM CT",  group:"Group I", team1:"France",              team2:"Iraq",               stage:"Group Stage" },
-  { date:"2026-06-22", day:"Monday",    time:"7:00 PM CT",  group:"Group I", team1:"Norway",              team2:"Senegal",            stage:"Group Stage" },
-  { date:"2026-06-22", day:"Monday",    time:"10:00 PM CT", group:"Group J", team1:"Jordan",              team2:"Algeria",            stage:"Group Stage" },
-  { date:"2026-06-23", day:"Tuesday",   time:"12:00 PM CT", group:"Group K", team1:"Portugal",            team2:"Uzbekistan",         stage:"Group Stage" },
-  { date:"2026-06-23", day:"Tuesday",   time:"3:00 PM CT",  group:"Group L", team1:"England",             team2:"Ghana",              stage:"Group Stage" },
-  { date:"2026-06-23", day:"Tuesday",   time:"6:00 PM CT",  group:"Group L", team1:"Panama",              team2:"Croatia",            stage:"Group Stage" },
-  { date:"2026-06-23", day:"Tuesday",   time:"9:00 PM CT",  group:"Group K", team1:"Colombia",            team2:"DR Congo",           stage:"Group Stage" },
-  { date:"2026-06-24", day:"Wednesday", time:"2:00 PM CT",  group:"Group B", team1:"Switzerland",         team2:"Canada",             stage:"Group Stage" },
-  { date:"2026-06-24", day:"Wednesday", time:"2:00 PM CT",  group:"Group B", team1:"Bosnia & Herzegovina",team2:"Qatar",              stage:"Group Stage" },
-  { date:"2026-06-24", day:"Wednesday", time:"5:00 PM CT",  group:"Group C", team1:"Scotland",            team2:"Brazil",             stage:"Group Stage" },
-  { date:"2026-06-24", day:"Wednesday", time:"5:00 PM CT",  group:"Group C", team1:"Morocco",             team2:"Haiti",              stage:"Group Stage" },
-  { date:"2026-06-24", day:"Wednesday", time:"8:00 PM CT",  group:"Group A", team1:"Czechia",             team2:"Mexico",             stage:"Group Stage" },
-  { date:"2026-06-24", day:"Wednesday", time:"8:00 PM CT",  group:"Group A", team1:"South Africa",        team2:"South Korea",        stage:"Group Stage" },
-  { date:"2026-06-25", day:"Thursday",  time:"3:00 PM CT",  group:"Group E", team1:"Curaçao",             team2:"Ivory Coast",        stage:"Group Stage" },
-  { date:"2026-06-25", day:"Thursday",  time:"3:00 PM CT",  group:"Group E", team1:"Ecuador",             team2:"Germany",            stage:"Group Stage" },
-  { date:"2026-06-25", day:"Thursday",  time:"6:00 PM CT",  group:"Group F", team1:"Japan",               team2:"Sweden",             stage:"Group Stage" },
-  { date:"2026-06-25", day:"Thursday",  time:"6:00 PM CT",  group:"Group F", team1:"Tunisia",             team2:"Netherlands",        stage:"Group Stage" },
-  { date:"2026-06-25", day:"Thursday",  time:"9:00 PM CT",  group:"Group D", team1:"Türkiye",             team2:"USA",                stage:"Group Stage" },
-  { date:"2026-06-25", day:"Thursday",  time:"9:00 PM CT",  group:"Group D", team1:"Paraguay",            team2:"Australia",          stage:"Group Stage" },
-  { date:"2026-06-26", day:"Friday",    time:"2:00 PM CT",  group:"Group I", team1:"Norway",              team2:"France",             stage:"Group Stage" },
-  { date:"2026-06-26", day:"Friday",    time:"2:00 PM CT",  group:"Group I", team1:"Senegal",             team2:"Iraq",               stage:"Group Stage" },
-  { date:"2026-06-26", day:"Friday",    time:"7:00 PM CT",  group:"Group H", team1:"Cape Verde",          team2:"Saudi Arabia",       stage:"Group Stage" },
-  { date:"2026-06-26", day:"Friday",    time:"7:00 PM CT",  group:"Group H", team1:"Uruguay",             team2:"Spain",              stage:"Group Stage" },
-  { date:"2026-06-26", day:"Friday",    time:"10:00 PM CT", group:"Group G", team1:"Egypt",               team2:"Iran",               stage:"Group Stage" },
-  { date:"2026-06-26", day:"Friday",    time:"10:00 PM CT", group:"Group G", team1:"New Zealand",         team2:"Belgium",            stage:"Group Stage" },
-  { date:"2026-06-27", day:"Saturday",  time:"4:00 PM CT",  group:"Group L", team1:"Panama",              team2:"England",            stage:"Group Stage" },
-  { date:"2026-06-27", day:"Saturday",  time:"4:00 PM CT",  group:"Group L", team1:"Croatia",             team2:"Ghana",              stage:"Group Stage" },
-  { date:"2026-06-27", day:"Saturday",  time:"6:30 PM CT",  group:"Group K", team1:"Colombia",            team2:"Portugal",           stage:"Group Stage" },
-  { date:"2026-06-27", day:"Saturday",  time:"6:30 PM CT",  group:"Group K", team1:"DR Congo",            team2:"Uzbekistan",         stage:"Group Stage" },
-  { date:"2026-06-27", day:"Saturday",  time:"9:00 PM CT",  group:"Group J", team1:"Algeria",             team2:"Austria",            stage:"Group Stage" },
-  { date:"2026-06-27", day:"Saturday",  time:"9:00 PM CT",  group:"Group J", team1:"Jordan",              team2:"Argentina",          stage:"Group Stage" },
-  // Round of 32 (indices 72–87)
-  { date:"2026-06-28", day:"Sunday",    time:"2:00 PM CT",  group:"", team1:"Runner-up A",           team2:"Runner-up B",           stage:"Round of 32" },
-  { date:"2026-06-29", day:"Monday",    time:"12:00 PM CT", group:"", team1:"Winner C",              team2:"Runner-up F",           stage:"Round of 32" },
-  { date:"2026-06-29", day:"Monday",    time:"3:30 PM CT",  group:"", team1:"Winner E",              team2:"Best 3rd (A/B/C/D/F)", stage:"Round of 32" },
-  { date:"2026-06-29", day:"Monday",    time:"8:00 PM CT",  group:"", team1:"Winner F",              team2:"Runner-up C",           stage:"Round of 32" },
-  { date:"2026-06-30", day:"Tuesday",   time:"12:00 PM CT", group:"", team1:"Runner-up E",           team2:"Runner-up I",           stage:"Round of 32" },
-  { date:"2026-06-30", day:"Tuesday",   time:"4:00 PM CT",  group:"", team1:"Winner I",              team2:"Best 3rd (C/D/F/G/H)", stage:"Round of 32" },
-  { date:"2026-06-30", day:"Tuesday",   time:"8:00 PM CT",  group:"", team1:"Winner A",              team2:"Best 3rd (C/E/F/H/I)", stage:"Round of 32" },
-  { date:"2026-06-30", day:"Tuesday",   time:"11:00 PM CT", group:"", team1:"Winner L",              team2:"Best 3rd (E/H/I/J/K)", stage:"Round of 32" },
-  { date:"2026-07-01", day:"Wednesday", time:"3:00 PM CT",  group:"", team1:"Winner G",              team2:"Best 3rd (A/E/H/I/J)", stage:"Round of 32" },
-  { date:"2026-07-01", day:"Wednesday", time:"7:00 PM CT",  group:"", team1:"Winner D",              team2:"Best 3rd (B/E/F/I/J)", stage:"Round of 32" },
-  { date:"2026-07-02", day:"Thursday",  time:"2:00 PM CT",  group:"", team1:"Winner H",              team2:"Runner-up J",           stage:"Round of 32" },
-  { date:"2026-07-02", day:"Thursday",  time:"6:00 PM CT",  group:"", team1:"Runner-up K",           team2:"Runner-up L",           stage:"Round of 32" },
-  { date:"2026-07-02", day:"Thursday",  time:"10:00 PM CT", group:"", team1:"Winner B",              team2:"Best 3rd (E/F/G/I/J)", stage:"Round of 32" },
-  { date:"2026-07-03", day:"Friday",    time:"1:00 PM CT",  group:"", team1:"Runner-up D",           team2:"Runner-up G",           stage:"Round of 32" },
-  { date:"2026-07-03", day:"Friday",    time:"5:00 PM CT",  group:"", team1:"Winner J",              team2:"Runner-up H",           stage:"Round of 32" },
-  { date:"2026-07-03", day:"Friday",    time:"8:30 PM CT",  group:"", team1:"Winner K",              team2:"Best 3rd (D/E/I/J/L)", stage:"Round of 32" },
-  // Round of 16 (indices 88–95)
-  { date:"2026-07-04", day:"Saturday",  time:"12:00 PM CT", group:"", team1:"TBD", team2:"TBD", stage:"Round of 16" },
-  { date:"2026-07-04", day:"Saturday",  time:"4:00 PM CT",  group:"", team1:"TBD", team2:"TBD", stage:"Round of 16" },
-  { date:"2026-07-05", day:"Sunday",    time:"3:00 PM CT",  group:"", team1:"TBD", team2:"TBD", stage:"Round of 16" },
-  { date:"2026-07-05", day:"Sunday",    time:"7:00 PM CT",  group:"", team1:"TBD", team2:"TBD", stage:"Round of 16" },
-  { date:"2026-07-06", day:"Monday",    time:"2:00 PM CT",  group:"", team1:"TBD", team2:"TBD", stage:"Round of 16" },
-  { date:"2026-07-06", day:"Monday",    time:"7:00 PM CT",  group:"", team1:"TBD", team2:"TBD", stage:"Round of 16" },
-  { date:"2026-07-06", day:"Monday",    time:"11:00 PM CT", group:"", team1:"TBD", team2:"TBD", stage:"Round of 16" },
-  { date:"2026-07-07", day:"Tuesday",   time:"3:00 PM CT",  group:"", team1:"TBD", team2:"TBD", stage:"Round of 16" },
-  // Quarterfinal (indices 96–99)
-  { date:"2026-07-09", day:"Thursday",  time:"3:00 PM CT",  group:"", team1:"TBD", team2:"TBD", stage:"Quarterfinal" },
-  { date:"2026-07-10", day:"Friday",    time:"2:00 PM CT",  group:"", team1:"TBD", team2:"TBD", stage:"Quarterfinal" },
-  { date:"2026-07-11", day:"Saturday",  time:"4:00 PM CT",  group:"", team1:"TBD", team2:"TBD", stage:"Quarterfinal" },
-  { date:"2026-07-11", day:"Saturday",  time:"8:00 PM CT",  group:"", team1:"TBD", team2:"TBD", stage:"Quarterfinal" },
-  // Semifinal (indices 100–101)
-  { date:"2026-07-14", day:"Tuesday",   time:"2:00 PM CT",  group:"", team1:"TBD", team2:"TBD", stage:"Semifinal" },
-  { date:"2026-07-15", day:"Wednesday", time:"2:00 PM CT",  group:"", team1:"TBD", team2:"TBD", stage:"Semifinal" },
-  // 3rd Place (index 102)
-  { date:"2026-07-18", day:"Saturday",  time:"4:00 PM CT",  group:"", team1:"TBD", team2:"TBD", stage:"3rd Place" },
-  // Final (index 103)
-  { date:"2026-07-19", day:"Sunday",    time:"2:00 PM CT",  group:"", team1:"TBD", team2:"TBD", stage:"Final" },
-]
 
 // ── State ─────────────────────────────────────────────────────────────────────
 
@@ -684,6 +573,10 @@ const grouped = computed(() => {
 
 function formatDateLabel(d) {
   return new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' })
+}
+
+function getDay(d) {
+  return new Date(d + 'T12:00:00').toLocaleDateString('en-US', { weekday:'long' })
 }
 
 function isReal(name) {
