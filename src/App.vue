@@ -210,7 +210,7 @@
                     @mouseenter="e=>e.currentTarget.style.color='#60a5fa'"
                     @mouseleave="e=>e.currentTarget.style.color='#334155'">✎</div>
                 </div>
-                <div v-if="m.venue" style="width:100%;padding-top:6px;font-size:11px;color:#334155;letter-spacing:0.3px">
+                <div v-if="m.venue" style="width:100%;padding-top:6px;font-size:11px;color:#475569;letter-spacing:0.3px">
                   📍 {{ m.venue }}
                 </div>
               </div>
