@@ -108,8 +108,8 @@ function handleKeydown(e) {
 }
 
 .modal {
-  background: #0a1628;
-  border: 1px solid #1e40af55;
+  background: var(--c-bg-deep);
+  border: 1px solid var(--c-border);
   border-radius: 16px;
   padding: 28px;
   width: 100%;
@@ -130,7 +130,7 @@ function handleKeydown(e) {
 .eyebrow {
   font-size: 11px;
   letter-spacing: 3px;
-  color: #60a5fa;
+  color: var(--c-accent);
   text-transform: uppercase;
   margin-bottom: 4px;
 }
@@ -138,15 +138,15 @@ function handleKeydown(e) {
 .title {
   margin: 0;
   font-size: 24px;
-  color: #f1f5f9;
+  color: var(--c-t5);
   font-family: Georgia, serif;
   font-weight: normal;
 }
 
 .close-btn {
   background: transparent;
-  border: 1px solid #1e3a6e;
-  color: #64748b;
+  border: 1px solid var(--c-border-solid);
+  color: var(--c-t2);
   border-radius: 6px;
   padding: 4px 10px;
   cursor: pointer;
@@ -157,16 +157,16 @@ function handleKeydown(e) {
 
 .close-btn:hover {
   border-color: #3b5a9e;
-  color: #94a3b8;
+  color: var(--c-t3);
 }
 
 .manager {
   font-size: 12px;
-  color: #64748b;
+  color: var(--c-t2);
   font-style: italic;
   margin-top: 4px;
 }
-.manager span { color: #94a3b8; }
+.manager span { color: var(--c-t3); }
 
 .tba {
   text-align: center;
@@ -180,13 +180,13 @@ function handleKeydown(e) {
 
 .tba-text {
   font-size: 15px;
-  color: #64748b;
+  color: var(--c-t2);
   margin-bottom: 6px;
 }
 
 .tba-sub {
   font-size: 12px;
-  color: #334155;
+  color: var(--c-t0);
   letter-spacing: 1px;
 }
 
@@ -197,11 +197,11 @@ function handleKeydown(e) {
 .pos-header {
   font-size: 11px;
   letter-spacing: 2px;
-  color: #60a5fa;
+  color: var(--c-accent);
   text-transform: uppercase;
   margin-bottom: 8px;
   padding-bottom: 6px;
-  border-bottom: 1px solid #1e3a6e44;
+  border-bottom: 1px solid var(--c-border);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -216,16 +216,16 @@ function handleKeydown(e) {
 }
 
 .player-row--alt {
-  background: #0c1a2e;
+  background: var(--c-bg-card);
 }
 
 .player-name {
-  color: #e2e8f0;
+  color: var(--c-t4);
   font-size: 14px;
 }
 
 .player-club {
-  color: #475569;
+  color: var(--c-t1);
   font-size: 12px;
   font-style: italic;
   margin-left: 8px;

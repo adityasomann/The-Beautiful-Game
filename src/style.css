@@ -1,3 +1,63 @@
+/* ── WC App Theme ─────────────────────────────── */
+:root {
+  --c-bg:           #060d1c;
+  --c-bg-deep:      #0a1628;
+  --c-bg-card:      #0c1a2e;
+  --c-bg-input:     #0d1f38;
+  --c-bg-hover:     #0f2040;
+  --c-bg-edit:      #0f1e35;
+  --c-bg-tab:       #070f1f;
+  --c-bg-win:       #0d2040;
+  --c-bg-warn:      #1a1205;
+  --c-border:       #1e3a6e44;
+  --c-border-2:     #1e3a6e33;
+  --c-border-3:     #1e3a6e22;
+  --c-border-solid: #1e3a6e;
+  --c-row-sep:      #0d1f3822;
+  --c-row-sep-d:    #0d1f3844;
+  --c-t0:           #334155;
+  --c-t1:           #475569;
+  --c-t2:           #64748b;
+  --c-t3:           #94a3b8;
+  --c-t4:           #e2e8f0;
+  --c-t5:           #f1f5f9;
+  --c-accent:       #60a5fa;
+  --c-advance-text: #cbd5e1;
+  --c-header-bg:    linear-gradient(135deg, #0a1628 0%, #0d2244 40%, #1a0a2e 100%);
+  --c-header-glow:  radial-gradient(ellipse at 50% 0%, #1e40af18 0%, transparent 70%);
+  --c-title-grad:   linear-gradient(90deg, #60a5fa, #ffffff, #fbbf24);
+}
+
+[data-theme="light"] {
+  --c-bg:           #f0f4f8;
+  --c-bg-deep:      #ffffff;
+  --c-bg-card:      #f8fafc;
+  --c-bg-input:     #e2e8f0;
+  --c-bg-hover:     #e8f0fe;
+  --c-bg-edit:      #eff6ff;
+  --c-bg-tab:       #ffffff;
+  --c-bg-win:       #dbeafe;
+  --c-bg-warn:      #fef3c7;
+  --c-border:       #93c5fd55;
+  --c-border-2:     #93c5fd33;
+  --c-border-3:     #93c5fd22;
+  --c-border-solid: #93c5fd;
+  --c-row-sep:      #93c5fd22;
+  --c-row-sep-d:    #93c5fd33;
+  --c-t0:           #94a3b8;
+  --c-t1:           #64748b;
+  --c-t2:           #475569;
+  --c-t3:           #334155;
+  --c-t4:           #1e293b;
+  --c-t5:           #0f172a;
+  --c-accent:       #2563eb;
+  --c-advance-text: #1e40af;
+  --c-header-bg:    linear-gradient(135deg, #dbeafe 0%, #eff6ff 40%, #eef2ff 100%);
+  --c-header-glow:  radial-gradient(ellipse at 50% 0%, #3b82f610 0%, transparent 70%);
+  --c-title-grad:   linear-gradient(90deg, #1d4ed8, #1e293b, #92400e);
+}
+/* ─────────────────────────────────────────────── */
+
 :root {
   --text: #6b6375;
   --text-h: #08060d;

@@ -96,8 +96,8 @@ function rowClass(pos) {
 
 /* ── Group card ─────────────────────────────── */
 .group-block {
-  background: #0c1a2e;
-  border: 1px solid #1e3a6e44;
+  background: var(--c-bg-card);
+  border: 1px solid var(--c-border);
   border-radius: 10px;
   overflow: hidden;
 }
@@ -107,20 +107,20 @@ function rowClass(pos) {
   align-items: center;
   justify-content: space-between;
   padding: 9px 14px;
-  background: #0a1628;
-  border-bottom: 1px solid #1e3a6e44;
+  background: var(--c-bg-deep);
+  border-bottom: 1px solid var(--c-border);
 }
 
 .group-name {
   font-size: 12px;
   letter-spacing: 2px;
-  color: #60a5fa;
+  color: var(--c-accent);
   font-weight: 600;
 }
 
 .match-count {
   font-size: 10px;
-  color: #64748b;
+  color: var(--c-t2);
   letter-spacing: 0.5px;
   margin-right: auto;
   padding-left: 8px;
@@ -156,22 +156,22 @@ function rowClass(pos) {
 
 .group-table th {
   text-align: center;
-  color: #334155;
+  color: var(--c-t0);
   font-size: 10px;
   letter-spacing: 1px;
   padding: 5px 4px;
-  border-bottom: 1px solid #1e3a6e22;
+  border-bottom: 1px solid var(--c-border-3);
   font-weight: 400;
 }
 
 .th-team { text-align: left; padding-left: 10px; }
-.th-pts  { color: #475569; }
+.th-pts  { color: var(--c-t1); }
 
 .group-table td {
   text-align: center;
   padding: 6px 4px;
-  color: #64748b;
-  border-bottom: 1px solid #0d1f3822;
+  color: var(--c-t2);
+  border-bottom: 1px solid var(--c-row-sep);
 }
 
 .group-table tr:last-child td { border-bottom: none; }
@@ -186,7 +186,7 @@ function rowClass(pos) {
 }
 
 .pos-num {
-  color: #1e3a6e;
+  color: var(--c-border-solid);
   font-size: 10px;
   width: 10px;
   flex-shrink: 0;
@@ -195,7 +195,7 @@ function rowClass(pos) {
 .flag { font-size: 13px; }
 
 .tname {
-  color: #64748b;
+  color: var(--c-t2);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -204,16 +204,16 @@ function rowClass(pos) {
 
 .td-pts {
   font-weight: 700;
-  color: #94a3b8;
+  color: var(--c-t3);
 }
 
 /* ── Row states ─────────────────────────────── */
-.row-advance td { background: #0d1f38; }
-.row-advance .tname { color: #cbd5e1; }
-.row-advance .td-pts { color: #e2e8f0; }
+.row-advance td { background: var(--c-bg-input); }
+.row-advance .tname { color: var(--c-advance-text); }
+.row-advance .td-pts { color: var(--c-t4); }
 .row-advance .pos-num { color: #3b82f6; }
 
-.row-third td { background: #1a1205; }
+.row-third td { background: var(--c-bg-warn); }
 .row-third .tname { color: #b45309; }
 .row-third .td-pts { color: #d97706; }
 
@@ -224,7 +224,7 @@ function rowClass(pos) {
   padding: 14px 2px 0;
   font-size: 11px;
   letter-spacing: 0.5px;
-  color: #334155;
+  color: var(--c-t0);
 }
 
 .leg-advance { color: #3b82f6; }
