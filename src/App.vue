@@ -4,6 +4,8 @@
     <GroupPopup :group="groupPopup" @close="groupPopup = null" />
     <SquadModal :country="squadCountry" @close="squadCountry = null" />
 
+    <!-- Sticky header + tabs -->
+    <div style="position:sticky;top:0;z-index:100">
     <!-- Header -->
     <div style="background:linear-gradient(135deg,#0a1628 0%,#0d2244 40%,#1a0a2e 100%);border-bottom:2px solid #1e40af44;padding:36px 24px 28px;text-align:center;position:relative;overflow:hidden">
       <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,#1e40af18 0%,transparent 70%);pointer-events:none"/>
@@ -20,6 +22,7 @@
         {{ tab.label }}
       </button>
     </div>
+    </div><!-- end sticky wrapper -->
 
     <!-- Views -->
     <ScheduleView v-if="view === 'schedule'" />
