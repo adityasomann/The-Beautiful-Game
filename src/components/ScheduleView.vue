@@ -60,9 +60,10 @@
 
             <!-- View mode -->
             <div v-else
-              :style="{ background: 'var(--c-bg-card)', border: `1px solid ${stageColor(m.stage).accent}33`, borderLeft: `3px solid ${stageColor(m.stage).badge}`, borderRadius: '8px', padding: '12px 16px', transition: 'background 0.15s' }"
-              @mouseenter="e => e.currentTarget.style.background = 'var(--c-bg-hover)'"
-              @mouseleave="e => e.currentTarget.style.background = 'var(--c-bg-card)'">
+              :id="'match-' + m._origIdx"
+              :style="{ background: flashingIdx === m._origIdx ? 'var(--c-bg-win)' : 'var(--c-bg-card)', border: flashingIdx === m._origIdx ? '1px solid var(--c-accent)' : `1px solid ${stageColor(m.stage).accent}33`, borderLeft: `3px solid ${stageColor(m.stage).badge}`, borderRadius: '8px', padding: '12px 16px', transition: 'background 0.4s, border-color 0.4s' }"
+              @mouseenter="e => { if (flashingIdx.value !== m._origIdx) e.currentTarget.style.background = 'var(--c-bg-hover)' }"
+              @mouseleave="e => { if (flashingIdx.value !== m._origIdx) e.currentTarget.style.background = flashingIdx.value === m._origIdx ? 'var(--c-bg-win)' : 'var(--c-bg-card)' }">
               <!-- Meta row: time + badges -->
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px">
                 <div style="color:var(--c-accent);font-size:13px;font-style:italic;flex-shrink:0">{{ m.time }}</div>
@@ -116,7 +117,7 @@
 </template>
 
 <script setup>
-import { ref, computed, inject } from 'vue'
+import { ref, computed, inject, onMounted, nextTick } from 'vue'
 import { COUNTRY_FLAGS, STAGE_COLORS, GROUPS, matchStartMs, MATCH_DURATION_MS } from '../data/constants.js'
 import { useNow } from '../composables/useNow.js'
 
@@ -133,13 +134,34 @@ const startEdit   = inject('startEdit')
 const saveEdit    = inject('saveEdit')
 const cancelEdit  = inject('cancelEdit')
 const clearScore  = inject('clearScore')
-const openSquad   = inject('openSquad')
-const openGroup   = inject('openGroup')
+const openSquad    = inject('openSquad')
+const openGroup    = inject('openGroup')
+const highlightIdx = inject('highlightIdx')
 
-const stageFilter = ref('All')
-const groupFilter = ref('All Groups')
-const search      = ref('')
-const todayOnly   = ref(false)
+const stageFilter  = ref('All')
+const groupFilter  = ref('All Groups')
+const search       = ref('')
+const todayOnly    = ref(false)
+const flashingIdx  = ref(null)
+
+onMounted(async () => {
+  const idx = highlightIdx.value
+  if (idx == null) return
+  stageFilter.value = 'All'
+  groupFilter.value = 'All Groups'
+  search.value      = ''
+  todayOnly.value   = false
+  await nextTick()
+  setTimeout(() => {
+    const el = document.getElementById(`match-${idx}`)
+    if (!el) return
+    const stickyH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sticky-top')) || 0
+    const top = window.scrollY + el.getBoundingClientRect().top - stickyH - 72
+    window.scrollTo({ top, behavior: 'smooth' })
+    flashingIdx.value = idx
+    setTimeout(() => { flashingIdx.value = null; highlightIdx.value = null }, 2200)
+  }, 80)
+})
 
 const filtered = computed(() =>
   standingsData.value.resolvedMatches

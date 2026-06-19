@@ -25,7 +25,10 @@
         </div>
         <div v-else style="display:flex;flex-direction:column;gap:8px">
           <div v-for="m in featuredMatches" :key="m._origIdx"
-            :style="{ background: 'var(--c-bg-card)', border: `1px solid ${stageColor(m.stage).badge}33`, borderLeft: `3px solid ${stageColor(m.stage).badge}`, borderRadius: '8px', padding: '12px 14px' }">
+            :style="{ background: 'var(--c-bg-card)', border: `1px solid ${stageColor(m.stage).badge}33`, borderLeft: `3px solid ${stageColor(m.stage).badge}`, borderRadius: '8px', padding: '12px 14px', cursor: 'pointer', transition: 'background 0.15s' }"
+            @click="goToMatch(m._origIdx)"
+            @mouseenter="e => e.currentTarget.style.background = 'var(--c-bg-hover)'"
+            @mouseleave="e => e.currentTarget.style.background = 'var(--c-bg-card)'">
             <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600">
               <span style="color:var(--c-accent);font-size:12px;font-style:italic;flex-shrink:0">{{ m.time }}</span>
               <span v-if="isLive(m)"
@@ -61,7 +64,10 @@
         </div>
         <div v-else style="display:flex;flex-direction:column;gap:8px">
           <div v-for="m in recentResults" :key="m._origIdx"
-            style="background:var(--c-bg-card);border:1px solid var(--c-border);border-radius:8px;padding:10px 14px">
+            style="background:var(--c-bg-card);border:1px solid var(--c-border);border-radius:8px;padding:10px 14px;cursor:pointer;transition:background 0.15s"
+            @click="goToMatch(m._origIdx)"
+            @mouseenter="e => e.currentTarget.style.background = 'var(--c-bg-hover)'"
+            @mouseleave="e => e.currentTarget.style.background = 'var(--c-bg-card)'">
             <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600">
               <span :style="{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'right', color: score1Wins(m._origIdx) ? 'var(--c-t5)' : 'var(--c-t1)' }">
                 {{ COUNTRY_FLAGS[m.team1] ?? '' }} {{ m.team1 }}
@@ -111,6 +117,7 @@ const scores        = inject('scores')
 const standingsData = inject('standingsData')
 const TODAY         = inject('TODAY')
 const setView       = inject('setView')
+const goToMatch     = inject('goToMatch')
 
 const navCards = [
   { view: 'schedule',  icon: '📅', label: 'Schedule',        desc: '72 group stage matches' },
