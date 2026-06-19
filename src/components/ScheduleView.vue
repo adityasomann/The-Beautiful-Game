@@ -60,47 +60,48 @@
 
             <!-- View mode -->
             <div v-else
-              :style="{ background: '#0c1a2e', border: `1px solid ${stageColor(m.stage).accent}33`, borderLeft: `3px solid ${stageColor(m.stage).badge}`, borderRadius: '8px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px', transition: 'background 0.15s', flexWrap: 'wrap' }"
+              :style="{ background: '#0c1a2e', border: `1px solid ${stageColor(m.stage).accent}33`, borderLeft: `3px solid ${stageColor(m.stage).badge}`, borderRadius: '8px', padding: '12px 16px', transition: 'background 0.15s' }"
               @mouseenter="e => e.currentTarget.style.background = '#0f2040'"
               @mouseleave="e => e.currentTarget.style.background = '#0c1a2e'">
-              <div style="min-width:100px;color:#60a5fa;font-size:13px;font-style:italic;flex-shrink:0">{{ m.time }}</div>
-              <div style="flex:1;display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;min-width:200px">
-                <!-- Team 1 -->
+              <!-- Meta row: time + badges -->
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px">
+                <div style="color:#60a5fa;font-size:13px;font-style:italic;flex-shrink:0">{{ m.time }}</div>
+                <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+                  <span v-if="m.group" :style="{ ...badgeStyle(m.stage), cursor: 'pointer' }"
+                    @click.stop="openGroup(m.group)"
+                    @mouseenter="e => e.currentTarget.style.opacity = '0.75'"
+                    @mouseleave="e => e.currentTarget.style.opacity = '1'">{{ m.group }}</span>
+                  <span :style="badgeStyle(m.stage)">{{ m.stage }}</span>
+                  <div @click="startEdit(m._origIdx)" title="Edit score"
+                    style="color:#334155;font-size:13px;cursor:pointer;padding:2px 6px;border-radius:4px;transition:color 0.15s"
+                    @mouseenter="e => e.currentTarget.style.color = '#60a5fa'"
+                    @mouseleave="e => e.currentTarget.style.color = '#334155'">✎</div>
+                </div>
+              </div>
+              <!-- Teams + score row (full width, no competition) -->
+              <div style="display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;min-width:0">
                 <span
-                  :style="{ cursor: isReal(m.team1) ? 'pointer' : 'default', color: teamColor(m._origIdx, true), borderRadius: '4px', padding: isReal(m.team1) ? '1px 5px' : '0', display: 'inline-block' }"
+                  :style="{ cursor: isReal(m.team1) ? 'pointer' : 'default', color: teamColor(m._origIdx, true), borderRadius: '4px', padding: isReal(m.team1) ? '1px 5px' : '0', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }"
                   @click="isReal(m.team1) ? openSquad(m.team1) : null"
                   @mouseenter="e => { if (isReal(m.team1)) { e.currentTarget.style.background = '#1e40af44'; e.currentTarget.style.color = '#93c5fd'; } }"
                   @mouseleave="e => { if (isReal(m.team1)) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = teamColor(m._origIdx, true); } }">
                   {{ COUNTRY_FLAGS[m.team1] ?? '' }} {{ m.team1 }}
                 </span>
-                <!-- Score -->
                 <template v-if="hasScore(m._origIdx)">
-                  <span :style="{ color: score1Wins(m._origIdx) ? '#e2e8f0' : '#475569', fontSize: '18px', fontWeight: 700, minWidth: '16px', textAlign: 'center' }">{{ scores[m._origIdx].score1 }}</span>
-                  <span style="color:#334155;font-size:14px">–</span>
-                  <span :style="{ color: score2Wins(m._origIdx) ? '#e2e8f0' : '#475569', fontSize: '18px', fontWeight: 700, minWidth: '16px', textAlign: 'center' }">{{ scores[m._origIdx].score2 }}</span>
+                  <span :style="{ color: score1Wins(m._origIdx) ? '#e2e8f0' : '#475569', fontSize: '18px', fontWeight: 700, minWidth: '16px', textAlign: 'center', flexShrink: 0 }">{{ scores[m._origIdx].score1 }}</span>
+                  <span style="color:#334155;font-size:14px;flex-shrink:0">–</span>
+                  <span :style="{ color: score2Wins(m._origIdx) ? '#e2e8f0' : '#475569', fontSize: '18px', fontWeight: 700, minWidth: '16px', textAlign: 'center', flexShrink: 0 }">{{ scores[m._origIdx].score2 }}</span>
                 </template>
-                <span v-else style="color:#334155;font-size:12px;font-weight:400;font-style:italic">vs</span>
-                <!-- Team 2 -->
+                <span v-else style="color:#334155;font-size:12px;font-weight:400;font-style:italic;flex-shrink:0">vs</span>
                 <span
-                  :style="{ cursor: isReal(m.team2) ? 'pointer' : 'default', color: teamColor(m._origIdx, false), borderRadius: '4px', padding: isReal(m.team2) ? '1px 5px' : '0', display: 'inline-block' }"
+                  :style="{ cursor: isReal(m.team2) ? 'pointer' : 'default', color: teamColor(m._origIdx, false), borderRadius: '4px', padding: isReal(m.team2) ? '1px 5px' : '0', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }"
                   @click="isReal(m.team2) ? openSquad(m.team2) : null"
                   @mouseenter="e => { if (isReal(m.team2)) { e.currentTarget.style.background = '#1e40af44'; e.currentTarget.style.color = '#93c5fd'; } }"
                   @mouseleave="e => { if (isReal(m.team2)) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = teamColor(m._origIdx, false); } }">
                   {{ COUNTRY_FLAGS[m.team2] ?? '' }} {{ m.team2 }}
                 </span>
               </div>
-              <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
-                <span v-if="m.group" :style="{ ...badgeStyle(m.stage), cursor: 'pointer' }"
-                  @click.stop="openGroup(m.group)"
-                  @mouseenter="e => e.currentTarget.style.opacity = '0.75'"
-                  @mouseleave="e => e.currentTarget.style.opacity = '1'">{{ m.group }}</span>
-                <span :style="badgeStyle(m.stage)">{{ m.stage }}</span>
-                <div @click="startEdit(m._origIdx)" title="Edit score"
-                  style="color:#334155;font-size:13px;cursor:pointer;padding:2px 6px;border-radius:4px;transition:color 0.15s"
-                  @mouseenter="e => e.currentTarget.style.color = '#60a5fa'"
-                  @mouseleave="e => e.currentTarget.style.color = '#334155'">✎</div>
-              </div>
-              <div v-if="m.venue" style="width:100%;padding-top:6px;font-size:11px;color:#475569;letter-spacing:0.3px">
+              <div v-if="m.venue" style="padding-top:6px;font-size:11px;color:#475569;letter-spacing:0.3px">
                 📍 {{ m.venue }}
               </div>
             </div>
