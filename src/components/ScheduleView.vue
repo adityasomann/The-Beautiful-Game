@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Filters -->
-    <div style="background:var(--c-bg-deep);border-bottom:1px solid var(--c-border-2);padding:16px 20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+    <div style="background:var(--c-bg-deep);border-bottom:1px solid var(--c-border-2);padding:16px 20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;position:sticky;top:var(--sticky-top);z-index:50">
       <input v-model="search" placeholder="🔍  Search team or group..."
         style="background:var(--c-bg-input);border:1px solid var(--c-border);color:var(--c-t4);border-radius:6px;padding:7px 12px;font-size:13px;width:200px;outline:none;font-family:Georgia,serif"/>
       <select v-model="stageFilter"

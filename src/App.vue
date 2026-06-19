@@ -5,7 +5,7 @@
     <SquadModal :country="squadCountry" @close="squadCountry = null" />
 
     <!-- Sticky header + tabs -->
-    <div style="position:sticky;top:0;z-index:100">
+    <div ref="stickyHeader" style="position:sticky;top:0;z-index:100">
     <!-- Header -->
     <div style="background:var(--c-header-bg);border-bottom:2px solid var(--c-border);padding:36px 24px 28px;text-align:center;position:relative;overflow:hidden">
       <div style="position:absolute;inset:0;background:var(--c-header-glow);pointer-events:none"/>
@@ -39,7 +39,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, provide } from 'vue'
+import { ref, computed, onMounted, onUnmounted, provide } from 'vue'
 import { ALL_MATCHES } from './data/matches.js'
 import { useStandings } from './composables/useStandings.js'
 import ScheduleView from './components/ScheduleView.vue'
@@ -50,6 +50,13 @@ import GroupPopup from './components/GroupPopup.vue'
 
 const API_URL = 'https://wc2026.home/api'
 const TODAY   = new Date().toLocaleDateString('en-CA') // YYYY-MM-DD in local time, not UTC
+
+const stickyHeader = ref(null)
+
+function updateStickyTop() {
+  const h = stickyHeader.value?.offsetHeight ?? 0
+  document.documentElement.style.setProperty('--sticky-top', h + 'px')
+}
 
 const isDark = ref(localStorage.getItem('theme') === 'dark')
 document.documentElement.setAttribute('data-theme', isDark.value ? 'dark' : 'light')
@@ -76,6 +83,8 @@ const editingIdx   = ref(null)
 const editBuf      = ref({})
 
 onMounted(async () => {
+  updateStickyTop()
+  window.addEventListener('resize', updateStickyTop)
   try {
     const res  = await fetch(`${API_URL}/scores`)
     const data = await res.json()
@@ -134,6 +143,8 @@ async function clearScore(idx) {
 }
 
 function cancelEdit() { editingIdx.value = null }
+
+onUnmounted(() => window.removeEventListener('resize', updateStickyTop))
 
 provide('scores',      scores)
 provide('editingIdx',  editingIdx)
