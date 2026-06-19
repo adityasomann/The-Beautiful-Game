@@ -21,16 +21,17 @@
     </div>
 
     <!-- View tabs -->
-    <div style="display:flex;background:var(--c-bg-tab);border-bottom:1px solid var(--c-border);padding:0 20px;gap:4px">
+    <div style="display:flex;background:var(--c-bg-tab);border-bottom:1px solid var(--c-border);padding:0 20px;gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none">
       <button v-for="tab in tabs" :key="tab.id" @click="view = tab.id"
-        :style="{ background: 'none', border: 'none', borderBottom: view === tab.id ? '2px solid #3b82f6' : '2px solid transparent', color: view === tab.id ? 'var(--c-accent)' : 'var(--c-t1)', padding: '12px 18px', fontSize: '12px', letterSpacing: '2px', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'Georgia,serif', transition: 'color 0.15s' }">
+        :style="{ background: 'none', border: 'none', borderBottom: view === tab.id ? '2px solid #3b82f6' : '2px solid transparent', color: view === tab.id ? 'var(--c-accent)' : 'var(--c-t1)', padding: '12px 18px', fontSize: '12px', letterSpacing: '2px', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'Georgia,serif', transition: 'color 0.15s', whiteSpace: 'nowrap', flexShrink: 0 }">
         {{ tab.label }}
       </button>
     </div>
     </div><!-- end sticky wrapper -->
 
     <!-- Views -->
-    <ScheduleView v-if="view === 'schedule'" />
+    <HomeView v-if="view === 'home'" />
+    <ScheduleView v-else-if="view === 'schedule'" />
     <GroupStandingsView v-else-if="view === 'standings'" />
     <BracketView v-else-if="view === 'bracket'" />
 
@@ -45,6 +46,7 @@ import { useStandings } from './composables/useStandings.js'
 import ScheduleView from './components/ScheduleView.vue'
 import BracketView from './components/BracketView.vue'
 import GroupStandingsView from './components/GroupStandingsView.vue'
+import HomeView from './components/HomeView.vue'
 import SquadModal from './components/SquadModal.vue'
 import GroupPopup from './components/GroupPopup.vue'
 
@@ -69,6 +71,7 @@ function toggleTheme() {
 }
 
 const tabs = [
+  { id: 'home',      label: 'Home' },
   { id: 'schedule',  label: 'Schedule' },
   { id: 'standings', label: 'Group Standings' },
   { id: 'bracket',   label: 'Bracket' },
@@ -76,7 +79,7 @@ const tabs = [
 
 const matches      = ref([...ALL_MATCHES])
 const scores       = ref({})
-const view         = ref('schedule')
+const view         = ref('home')
 const squadCountry = ref(null)
 const groupPopup   = ref(null)
 const editingIdx   = ref(null)
