@@ -44,7 +44,7 @@ import SquadModal from './components/SquadModal.vue'
 import GroupPopup from './components/GroupPopup.vue'
 
 const API_URL = 'https://wc2026.home/api'
-const TODAY   = new Date().toISOString().slice(0, 10)
+const TODAY   = new Date().toLocaleDateString('en-CA') // YYYY-MM-DD in local time, not UTC
 
 const tabs = [
   { id: 'schedule',  label: 'Schedule' },
