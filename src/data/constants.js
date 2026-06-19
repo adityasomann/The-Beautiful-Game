@@ -128,6 +128,19 @@ export const MANAGERS = {
   "Panama":               "Thomas Christiansen",
 }
 
+// Returns ms timestamp for match kickoff. Times in data are CT (CDT = UTC-5 during tournament).
+export function matchStartMs(dateStr, timeStr) {
+  const m = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i)
+  if (!m) return null
+  let h = parseInt(m[1])
+  const min = parseInt(m[2])
+  if (m[3].toUpperCase() === 'PM' && h !== 12) h += 12
+  if (m[3].toUpperCase() === 'AM' && h === 12) h = 0
+  return new Date(`${dateStr}T${String(h).padStart(2,'0')}:${String(min).padStart(2,'0')}:00-05:00`).getTime()
+}
+
+export const MATCH_DURATION_MS = 150 * 60 * 1000 // 2.5 h covers extra time + penalties
+
 export const editFields = [
   ["TEAM 1",    "team1"],
   ["TEAM 2",    "team2"],

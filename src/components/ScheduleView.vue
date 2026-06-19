@@ -72,6 +72,8 @@
                     @mouseenter="e => e.currentTarget.style.opacity = '0.75'"
                     @mouseleave="e => e.currentTarget.style.opacity = '1'">{{ m.group }}</span>
                   <span :style="badgeStyle(m.stage)">{{ m.stage }}</span>
+                  <span v-if="isLive(m)"
+                    style="background:#dc26261a;color:#f87171;border:1px solid #dc262644;border-radius:4px;padding:2px 7px;font-size:10px;letter-spacing:1.5px;animation:livePulse 1.5s ease-in-out infinite">LIVE</span>
                   <div @click="startEdit(m._origIdx)" title="Edit score"
                     style="color:var(--c-t0);font-size:13px;cursor:pointer;padding:2px 6px;border-radius:4px;transition:color 0.15s"
                     @mouseenter="e => e.currentTarget.style.color = 'var(--c-accent)'"
@@ -115,9 +117,12 @@
 
 <script setup>
 import { ref, computed, inject } from 'vue'
-import { COUNTRY_FLAGS, STAGE_COLORS, GROUPS } from '../data/constants.js'
+import { COUNTRY_FLAGS, STAGE_COLORS, GROUPS, matchStartMs, MATCH_DURATION_MS } from '../data/constants.js'
+import { useNow } from '../composables/useNow.js'
 
 const SCHEDULE_STAGES = ['All', 'Group Stage']
+
+const { nowMs } = useNow()
 
 const scores      = inject('scores')
 const editingIdx  = inject('editingIdx')
@@ -194,6 +199,12 @@ function stageColor(stage) {
 function badgeStyle(stage) {
   const c = stageColor(stage)
   return { background: c.badge + '22', color: c.badge, border: `1px solid ${c.badge}44`, borderRadius: '4px', padding: '2px 8px', fontSize: '11px', letterSpacing: '1px' }
+}
+
+function isLive(m) {
+  const start = matchStartMs(m.date, m.time)
+  if (start === null) return false
+  return nowMs.value >= start && nowMs.value < start + MATCH_DURATION_MS
 }
 
 function formatDateLabel(d) {

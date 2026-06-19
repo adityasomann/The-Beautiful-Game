@@ -28,6 +28,8 @@
             :style="{ background: 'var(--c-bg-card)', border: `1px solid ${stageColor(m.stage).badge}33`, borderLeft: `3px solid ${stageColor(m.stage).badge}`, borderRadius: '8px', padding: '12px 14px' }">
             <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600">
               <span style="color:var(--c-accent);font-size:12px;font-style:italic;flex-shrink:0">{{ m.time }}</span>
+              <span v-if="isLive(m)"
+                style="background:#dc26261a;color:#f87171;border:1px solid #dc262644;border-radius:4px;padding:1px 6px;font-size:10px;letter-spacing:1.5px;flex-shrink:0;animation:livePulse 1.5s ease-in-out infinite">LIVE</span>
               <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--c-t4);text-align:right">
                 {{ COUNTRY_FLAGS[m.team1] ?? '' }} {{ m.team1 }}
               </span>
@@ -100,7 +102,10 @@
 
 <script setup>
 import { inject, computed } from 'vue'
-import { COUNTRY_FLAGS, STAGE_COLORS } from '../data/constants.js'
+import { COUNTRY_FLAGS, STAGE_COLORS, matchStartMs, MATCH_DURATION_MS } from '../data/constants.js'
+import { useNow } from '../composables/useNow.js'
+
+const { nowMs } = useNow()
 
 const scores        = inject('scores')
 const standingsData = inject('standingsData')
@@ -177,6 +182,12 @@ function score1Wins(idx) {
 function score2Wins(idx) {
   const s = scores.value[idx]
   return hasScore(idx) && Number(s.score2) > Number(s.score1)
+}
+
+function isLive(m) {
+  const start = matchStartMs(m.date, m.time)
+  if (start === null) return false
+  return nowMs.value >= start && nowMs.value < start + MATCH_DURATION_MS
 }
 
 function stageColor(stage) {
