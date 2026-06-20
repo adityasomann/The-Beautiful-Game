@@ -35,6 +35,9 @@
                   <span class="pos-num">{{ pos + 1 }}</span>
                   <span class="flag">{{ COUNTRY_FLAGS[team.name] ?? '' }}</span>
                   <span class="tname">{{ team.name }}</span>
+                  <span v-if="team.clinch === 'first'"     class="clinch clinch-first">1ST</span>
+                  <span v-else-if="team.clinch === 'qualified'"  class="clinch clinch-q">Q</span>
+                  <span v-else-if="team.clinch === 'eliminated'" class="clinch clinch-e">OUT</span>
                 </div>
               </td>
               <td>{{ team.P }}</td>
@@ -54,6 +57,9 @@
     <div class="legend">
       <span class="leg-item leg-advance">▌ Advance to Round of 32</span>
       <span class="leg-item leg-third">▌ Potential 3rd-place qualifier</span>
+      <span class="leg-item"><span class="clinch clinch-first">1ST</span> Clinched group winner</span>
+      <span class="leg-item"><span class="clinch clinch-q">Q</span> Confirmed qualified</span>
+      <span class="leg-item"><span class="clinch clinch-e">OUT</span> Eliminated</span>
     </div>
   </div>
 </template>
@@ -217,14 +223,42 @@ function rowClass(pos) {
 .row-third .tname { color: #b45309; }
 .row-third .td-pts { color: #d97706; }
 
+/* ── Clinch badges ──────────────────────────── */
+.clinch {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border-radius: 3px;
+  padding: 1px 5px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.clinch-first {
+  background: var(--c-badge-first-bg);
+  color: var(--c-badge-first-text);
+  border: 1px solid var(--c-badge-first-border);
+}
+.clinch-q {
+  background: var(--c-badge-q-bg);
+  color: var(--c-badge-q-text);
+  border: 1px solid var(--c-badge-q-border);
+}
+.clinch-e {
+  background: var(--c-badge-e-bg);
+  color: var(--c-badge-e-text);
+  border: 1px solid var(--c-badge-e-border);
+}
+
 /* ── Legend ─────────────────────────────────── */
 .legend {
   display: flex;
-  gap: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
   padding: 14px 2px 0;
   font-size: 11px;
   letter-spacing: 0.5px;
   color: var(--c-t0);
+  align-items: center;
 }
 
 .leg-advance { color: #3b82f6; }

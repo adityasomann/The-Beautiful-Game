@@ -35,7 +35,7 @@ function buildStandingsData(rawMatches) {
     }
   }
 
-  // 2. Sort each group; track completion and match counts
+  // 2. Sort each group; track completion, match counts, and clinch status
   const standings = {}
   const complete  = {}
   const matchCounts = {}
@@ -47,6 +47,25 @@ function buildStandingsData(rawMatches) {
     )
     complete[g] = totalPerGroup[g] > 0 && scoredPerGroup[g] === totalPerGroup[g]
     matchCounts[g] = { played: scoredPerGroup[g], total: totalPerGroup[g] }
+
+    if (scoredPerGroup[g] > 0) {
+      if (complete[g]) {
+        // Group finished: final positions are definitive
+        standings[g].forEach((x, pos) => {
+          x.clinch = pos === 0 ? 'first' : pos === 1 ? 'qualified' : 'eliminated'
+        })
+      } else {
+        // Group in progress: mathematical clinch (points-only, ignores GD)
+        for (const x of standings[g]) {
+          const xMax       = x.Pts + (3 - x.P) * 3
+          const alreadyAbove = standings[g].filter(y => y !== x && y.Pts > xMax).length
+          const canSurpass   = standings[g].filter(y => y !== x && (y.Pts + (3 - y.P) * 3) > x.Pts).length
+          if (alreadyAbove >= 2) x.clinch = 'eliminated'
+          else if (canSurpass <= 1) x.clinch = 'qualified'
+          else x.clinch = null
+        }
+      }
+    }
   }
 
   // 3. Best 3rd-place teams (needed when all 12 groups done)
@@ -71,16 +90,23 @@ function buildStandingsData(rawMatches) {
   const resolved = rawMatches.map(m => ({ ...m }))
   const assignedThirds = new Set()
 
+  // Returns { name, confirmed } or null.
+  // confirmed=true  → group is finished, slot is locked in
+  // confirmed=false → group in progress, showing current leader provisionally
   function resolvePlaceholder(ph) {
     const wm = ph.match(/^Winner ([A-L])$/)
     if (wm) {
       const g = `Group ${wm[1]}`
-      return complete[g] ? (standings[g]?.[0]?.name ?? null) : null
+      const name = standings[g]?.[0]?.name ?? null
+      if (!name) return null
+      return { name, confirmed: !!complete[g] }
     }
     const rm = ph.match(/^Runner-up ([A-L])$/)
     if (rm) {
       const g = `Group ${rm[1]}`
-      return complete[g] ? (standings[g]?.[1]?.name ?? null) : null
+      const name = standings[g]?.[1]?.name ?? null
+      if (!name) return null
+      return { name, confirmed: !!complete[g] }
     }
     const bm = ph.match(/^Best 3rd \(([A-L/]+)\)$/)
     if (bm && allGroupsDone) {
@@ -88,7 +114,7 @@ function buildStandingsData(rawMatches) {
       for (const t of top8) {
         if (allowed.includes(t.group) && !assignedThirds.has(t.group)) {
           assignedThirds.add(t.group)
-          return t.name
+          return { name: t.name, confirmed: true }
         }
       }
     }
@@ -97,10 +123,10 @@ function buildStandingsData(rawMatches) {
 
   // Resolve R32 placeholders
   for (let i = 72; i <= 87; i++) {
-    const t1 = resolvePlaceholder(resolved[i].team1)
-    const t2 = resolvePlaceholder(resolved[i].team2)
-    if (t1) resolved[i] = { ...resolved[i], team1: t1 }
-    if (t2) resolved[i] = { ...resolved[i], team2: t2 }
+    const r1 = resolvePlaceholder(resolved[i].team1)
+    const r2 = resolvePlaceholder(resolved[i].team2)
+    if (r1) resolved[i] = { ...resolved[i], team1: r1.name, team1Confirmed: r1.confirmed }
+    if (r2) resolved[i] = { ...resolved[i], team2: r2.name, team2Confirmed: r2.confirmed }
   }
 
   // Cascade winners through bracket

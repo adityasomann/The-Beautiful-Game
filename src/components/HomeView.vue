@@ -49,6 +49,15 @@
             <div v-if="m.group || m.venue" style="text-align:center;margin-top:5px;font-size:10px;color:var(--c-t0)">
               {{ [m.group, m.venue?.split(',')[0]].filter(Boolean).join(' · ') }}
             </div>
+            <div v-if="countdown(m)" style="display:flex;justify-content:center;margin-top:8px">
+              <span :style="{
+                background: countdown(m).urgent ? '#dc26261a' : 'var(--c-bg-deep)',
+                color: countdown(m).urgent ? '#f87171' : 'var(--c-t2)',
+                border: `1px solid ${countdown(m).urgent ? '#dc262644' : 'var(--c-border)'}`,
+                borderRadius: '20px', padding: '3px 12px', fontSize: '11px', letterSpacing: '0.5px',
+                fontVariantNumeric: 'tabular-nums'
+              }">⏱ {{ countdown(m).label }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -111,7 +120,7 @@ import { inject, computed } from 'vue'
 import { COUNTRY_FLAGS, STAGE_COLORS, matchStartMs, MATCH_DURATION_MS } from '../data/constants.js'
 import { useNow } from '../composables/useNow.js'
 
-const { nowMs } = useNow()
+const { nowMs } = useNow({ interval: 1000 })
 
 const scores        = inject('scores')
 const standingsData = inject('standingsData')
@@ -195,6 +204,20 @@ function isLive(m) {
   const start = matchStartMs(m.date, m.time)
   if (start === null) return false
   return nowMs.value >= start && nowMs.value < start + MATCH_DURATION_MS
+}
+
+function countdown(m) {
+  const start = matchStartMs(m.date, m.time)
+  if (start === null) return null
+  const diff = start - nowMs.value
+  if (diff <= 0) return null
+  const totalSec = Math.floor(diff / 1000)
+  const h = Math.floor(totalSec / 3600)
+  const min = Math.floor((totalSec % 3600) / 60)
+  const sec = totalSec % 60
+  if (h > 0) return { label: `${h}h ${min}m`, urgent: false }
+  if (min > 0) return { label: `${min}m ${String(sec).padStart(2, '0')}s`, urgent: min < 15 }
+  return { label: `${sec}s`, urgent: true }
 }
 
 function stageColor(stage) {

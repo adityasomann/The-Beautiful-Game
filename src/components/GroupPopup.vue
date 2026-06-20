@@ -30,6 +30,12 @@
                 <span :style="{ color: pos < 2 ? '#3b82f6' : 'var(--c-border-solid)', fontSize: '10px', width: '12px', flexShrink: 0 }">{{ pos + 1 }}</span>
                 <span style="font-size:15px">{{ COUNTRY_FLAGS[team.name] ?? '' }}</span>
                 <span :style="{ color: pos < 2 ? 'var(--c-advance-text)' : pos === 2 ? '#b45309' : 'var(--c-t2)' }">{{ team.name }}</span>
+                <span v-if="team.clinch === 'first'"
+                  style="font-size:9px;font-weight:700;background:var(--c-badge-first-bg);color:var(--c-badge-first-text);border:1px solid var(--c-badge-first-border);border-radius:3px;padding:1px 5px;flex-shrink:0">1ST</span>
+                <span v-else-if="team.clinch === 'qualified'"
+                  style="font-size:9px;font-weight:700;background:var(--c-badge-q-bg);color:var(--c-badge-q-text);border:1px solid var(--c-badge-q-border);border-radius:3px;padding:1px 5px;flex-shrink:0">Q</span>
+                <span v-else-if="team.clinch === 'eliminated'"
+                  style="font-size:9px;font-weight:700;background:var(--c-badge-e-bg);color:var(--c-badge-e-text);border:1px solid var(--c-badge-e-border);border-radius:3px;padding:1px 5px;flex-shrink:0">OUT</span>
               </div>
             </td>
             <td style="text-align:center;color:var(--c-t2);padding:8px 4px;border-bottom:1px solid var(--c-row-sep)">{{ team.P }}</td>

@@ -39,14 +39,14 @@
             <!-- View mode -->
             <div v-else :style="{ background: 'var(--c-bg-card)', border: `1px solid ${stageColor(m.stage).badge}44`, borderLeft: `2px solid ${stageColor(m.stage).badge}`, borderRadius: '6px', overflow: 'hidden', fontSize: '12px' }">
               <div :style="{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 8px', background: score1Wins(m._origIdx) ? 'var(--c-bg-win)' : 'transparent', borderBottom: '1px solid var(--c-row-sep-d)' }">
-                <span :style="{ color: hasScore(m._origIdx) ? (score1Wins(m._origIdx) ? 'var(--c-t5)' : 'var(--c-t0)') : 'var(--c-t2)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '130px', cursor: isReal(m.team1) ? 'pointer' : 'default' }"
+                <span :style="{ color: hasScore(m._origIdx) ? (score1Wins(m._origIdx) ? 'var(--c-t5)' : 'var(--c-t0)') : (m.team1Confirmed === false ? 'var(--c-t1)' : 'var(--c-t3)'), fontStyle: m.team1Confirmed === false ? 'italic' : 'normal', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '130px', cursor: isReal(m.team1) ? 'pointer' : 'default' }"
                   @click="isReal(m.team1) ? openSquad(m.team1) : null">
                   {{ COUNTRY_FLAGS[m.team1] ?? '' }} {{ m.team1 }}
                 </span>
                 <span v-if="hasScore(m._origIdx)" :style="{ fontSize: '13px', fontWeight: 700, color: score1Wins(m._origIdx) ? 'var(--c-t5)' : 'var(--c-t1)', flexShrink: 0, marginLeft: '4px' }">{{ scores[m._origIdx].score1 }}</span>
               </div>
               <div :style="{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 8px', background: score2Wins(m._origIdx) ? 'var(--c-bg-win)' : 'transparent', borderBottom: '1px solid var(--c-row-sep-d)' }">
-                <span :style="{ color: hasScore(m._origIdx) ? (score2Wins(m._origIdx) ? 'var(--c-t5)' : 'var(--c-t0)') : 'var(--c-t2)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '130px', cursor: isReal(m.team2) ? 'pointer' : 'default' }"
+                <span :style="{ color: hasScore(m._origIdx) ? (score2Wins(m._origIdx) ? 'var(--c-t5)' : 'var(--c-t0)') : (m.team2Confirmed === false ? 'var(--c-t1)' : 'var(--c-t3)'), fontStyle: m.team2Confirmed === false ? 'italic' : 'normal', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '130px', cursor: isReal(m.team2) ? 'pointer' : 'default' }"
                   @click="isReal(m.team2) ? openSquad(m.team2) : null">
                   {{ COUNTRY_FLAGS[m.team2] ?? '' }} {{ m.team2 }}
                 </span>
