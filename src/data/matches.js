@@ -34,7 +34,7 @@ export const ALL_MATCHES = [
   { date: "2026-06-20",  time: "12:00 PM CT", group: "Group F", team1: "Netherlands",          team2: "Sweden",                  stage: "Group Stage", venue: "NRG Stadium, Houston", score1: "", score2: "" },
   { date: "2026-06-20",  time: "3:00 PM CT",  group: "Group E", team1: "Germany",              team2: "Ivory Coast",             stage: "Group Stage", venue: "BMO Field, Toronto", score1: "", score2: "" },
   { date: "2026-06-20",  time: "7:00 PM CT",  group: "Group E", team1: "Ecuador",              team2: "Curaçao",                 stage: "Group Stage", venue: "Arrowhead Stadium, Kansas City", score1: "", score2: "" },
-  { date: "2026-06-21",    time: "11:00 PM CT", group: "Group F", team1: "Tunisia",              team2: "Japan",                   stage: "Group Stage", venue: "Estadio BBVA, Monterrey", score1: "", score2: "" },
+  { date: "2026-06-20",    time: "10:00 PM CT", group: "Group F", team1: "Tunisia",              team2: "Japan",                   stage: "Group Stage", venue: "Estadio BBVA, Monterrey", score1: "", score2: "" },
   { date: "2026-06-21",    time: "11:00 AM CT", group: "Group H", team1: "Spain",                team2: "Saudi Arabia",            stage: "Group Stage", venue: "Mercedes-Benz Stadium, Atlanta", score1: "", score2: "" },
   { date: "2026-06-21",    time: "2:00 PM CT",  group: "Group G", team1: "Belgium",              team2: "Iran",                    stage: "Group Stage", venue: "SoFi Stadium, Los Angeles", score1: "", score2: "" },
   { date: "2026-06-21",    time: "5:00 PM CT",  group: "Group H", team1: "Uruguay",              team2: "Cape Verde",              stage: "Group Stage", venue: "Hard Rock Stadium, Miami", score1: "", score2: "" },
