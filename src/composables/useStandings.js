@@ -55,14 +55,58 @@ function buildStandingsData(rawMatches) {
           x.clinch = pos === 0 ? 'first' : pos === 1 ? 'qualified' : 'eliminated'
         })
       } else {
-        // Group in progress: mathematical clinch (points-only, ignores GD)
-        for (const x of standings[g]) {
-          const xMax       = x.Pts + (3 - x.P) * 3
-          const alreadyAbove = standings[g].filter(y => y !== x && y.Pts > xMax).length
-          const canSurpass   = standings[g].filter(y => y !== x && (y.Pts + (3 - y.P) * 3) > x.Pts).length
-          if (alreadyAbove >= 2) x.clinch = 'eliminated'
-          else if (canSurpass <= 1) x.clinch = 'qualified'
-          else x.clinch = null
+        // Group in progress: fixture-aware clinch (points-only, ignores GD).
+        // Brute-force every remaining group result so that contenders who still
+        // play EACH OTHER can't both reach their theoretical max — that's what
+        // lets a leader clinch 'first' (1ST) before the group is mathematically
+        // over by the naive independent-max method.
+        const teams = standings[g]
+        const remaining = rawMatches.filter(m =>
+          m.stage === 'Group Stage' && m.group === g &&
+          (m.score1 === '' || m.score2 === '')
+        )
+        const basePts = {}
+        for (const t of teams) basePts[t.name] = t.Pts
+
+        // Worst/best case rivals across all possible remaining results.
+        // Ties on points are resolved optimistically (in the team's favour) — the
+        // same convention the 'qualified' check uses — so a leader that rivals can
+        // only draw *level* with still clinches 1ST.
+        const maxStrictAbove = {} // most teams that can finish > x → 0 ⇒ 1st, ≤1 ⇒ top-2
+        const minStrictAbove = {} // fewest teams above x even in x's best case → ≥2 ⇒ out
+        for (const t of teams) {
+          maxStrictAbove[t.name] = 0
+          minStrictAbove[t.name] = Infinity
+        }
+
+        const n = remaining.length
+        const scenarios = 3 ** n
+        for (let s = 0; s < scenarios; s++) {
+          const pts = { ...basePts }
+          let code = s
+          for (let k = 0; k < n; k++) {
+            const outcome = code % 3; code = Math.floor(code / 3)
+            const { team1, team2 } = remaining[k]
+            if (outcome === 0)      pts[team1] += 3
+            else if (outcome === 1) pts[team2] += 3
+            else                    { pts[team1] += 1; pts[team2] += 1 }
+          }
+          for (const t of teams) {
+            let strictAbove = 0
+            for (const u of teams) {
+              if (u === t) continue
+              if (pts[u.name] > pts[t.name]) strictAbove++
+            }
+            if (strictAbove > maxStrictAbove[t.name]) maxStrictAbove[t.name] = strictAbove
+            if (strictAbove < minStrictAbove[t.name]) minStrictAbove[t.name] = strictAbove
+          }
+        }
+
+        for (const t of teams) {
+          if (maxStrictAbove[t.name] === 0)     t.clinch = 'first'       // no rival can finish above
+          else if (maxStrictAbove[t.name] <= 1) t.clinch = 'qualified'   // never worse than 2nd
+          else if (minStrictAbove[t.name] >= 2) t.clinch = 'eliminated'  // can't reach top-2 even at best
+          else t.clinch = null
         }
       }
     }
