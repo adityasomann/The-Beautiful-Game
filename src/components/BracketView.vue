@@ -126,9 +126,9 @@
 import { computed, inject } from 'vue'
 import { COUNTRY_FLAGS, STAGE_COLORS } from '../data/constants.js'
 
-const HALF_SLOT   = 96   // px per R32 slot in a half-bracket
-const BRACKET_CARD = 82  // card height
-const HALF_HEIGHT  = 8 * HALF_SLOT  // 768px
+const HALF_SLOT   = 108  // px per R32 slot in a half-bracket; real card ≈100px, so gap ≈ HALF_SLOT−100
+const BRACKET_CARD = 82  // card height (used only for vertical centering, not the gap)
+const HALF_HEIGHT  = 8 * HALF_SLOT  // 864px
 
 const scores       = inject('scores')
 const editingIdx   = inject('editingIdx')
