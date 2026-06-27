@@ -200,6 +200,15 @@ function buildStandingsData(rawMatches) {
     group: t.group.replace('Group ', ''), name: t.name,
   }))
 
+  // The best-3rd slot assignment is locked once the eight qualifying thirds are
+  // settled. That's exactly when 8 third-place teams are guaranteed qualified
+  // (#20): all 8 are then from finished groups, so their identities, final goal
+  // differences, and therefore the whole assignment can no longer change. Until
+  // then the slots stay provisional. (#23)
+  const qualifiedThirds = Object.entries(standings)
+    .filter(([g, teams]) => complete[g] && teams[2]?.clinch === 'qualified').length
+  const bestThirdLocked = allGroupsDone || qualifiedThirds >= 8
+
   // 4. Resolve placeholder team names in knockout matches
   const resolved = rawMatches.map(m => ({ ...m }))
   const assignedThirds = new Set()
@@ -231,7 +240,7 @@ function buildStandingsData(rawMatches) {
       for (const t of currentTop8) {
         if (allowed.includes(t.group) && !assignedThirds.has(t.group)) {
           assignedThirds.add(t.group)
-          return { name: t.name, confirmed: allGroupsDone }
+          return { name: t.name, confirmed: bestThirdLocked }
         }
       }
     }
