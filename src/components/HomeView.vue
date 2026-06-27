@@ -140,7 +140,10 @@ const allMatches = computed(() =>
 
 const featuredMatches = computed(() => {
   const todayMs = allMatches.value.filter(m => m.date === TODAY)
-  if (todayMs.length > 0) return todayMs
+  if (todayMs.length > 0) {
+    // Live games float to the top; everything else keeps its schedule order.
+    return [...todayMs.filter(m => isLive(m)), ...todayMs.filter(m => !isLive(m))]
+  }
   const future = allMatches.value
     .filter(m => m.date > TODAY && !hasScore(m._origIdx))
     .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
