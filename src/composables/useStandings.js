@@ -1,4 +1,5 @@
 import { computed } from 'vue'
+import { parseGoals, parsePens } from '../utils/score.js'
 
 export function useStandings(matchesWithScores) {
   const standingsData = computed(() => buildStandingsData(matchesWithScores.value))
@@ -24,7 +25,7 @@ function buildStandingsData(rawMatches) {
 
     if (m.score1 !== '' && m.score2 !== '') {
       scoredPerGroup[g]++
-      const s1 = Number(m.score1), s2 = Number(m.score2)
+      const s1 = parseGoals(m.score1), s2 = parseGoals(m.score2)
       const t1 = groups[g][m.team1], t2 = groups[g][m.team2]
       t1.P++; t2.P++
       t1.GF += s1; t1.GA += s2
@@ -50,9 +51,14 @@ function buildStandingsData(rawMatches) {
 
     if (scoredPerGroup[g] > 0) {
       if (complete[g]) {
-        // Group finished: final positions are definitive
+        // Group finished: top 2 advance, 4th is out. 3rd place is left undecided
+        // here — it may still advance as a best-3rd team, so it's resolved below
+        // once the cross-group best-3rd race is known.
         standings[g].forEach((x, pos) => {
-          x.clinch = pos === 0 ? 'first' : pos === 1 ? 'qualified' : 'eliminated'
+          x.clinch = pos === 0 ? 'first'
+                   : pos === 1 ? 'qualified'
+                   : pos === 3 ? 'eliminated'
+                   : null
         })
       } else {
         // Group in progress: fixture-aware clinch (points-only, ignores GD).
@@ -105,8 +111,8 @@ function buildStandingsData(rawMatches) {
         for (const t of teams) {
           if (maxStrictAbove[t.name] === 0)     t.clinch = 'first'       // no rival can finish above
           else if (maxStrictAbove[t.name] <= 1) t.clinch = 'qualified'   // never worse than 2nd
-          else if (minStrictAbove[t.name] >= 2) t.clinch = 'eliminated'  // can't reach top-2 even at best
-          else t.clinch = null
+          else if (minStrictAbove[t.name] >= 3) t.clinch = 'eliminated'  // can't even reach 3rd → no best-3rd path
+          else t.clinch = null                                          // 3rd-place finish still possible → in the best-3rd race
         }
       }
     }
@@ -122,6 +128,63 @@ function buildStandingsData(rawMatches) {
   thirds.sort((a, b) => b.Pts - a.Pts || b.GD - a.GD || b.GF - a.GF)
   const top8 = allGroupsDone ? thirds.slice(0, 8) : []
 
+  // 3a. Bounds on every group's eventual 3rd-place points: the fewest (floor) and
+  // most (ceil) points the team that ends up 3rd in that group can finish with,
+  // over all remaining results. For a finished group, floor === ceil === actual.
+  function thirdPlaceBounds(g) {
+    const names = standings[g].map(t => t.name)
+    const base = {}
+    for (const t of standings[g]) base[t.name] = t.Pts
+    const remaining = rawMatches.filter(m =>
+      m.stage === 'Group Stage' && m.group === g &&
+      (m.score1 === '' || m.score2 === '')
+    )
+    let floor = Infinity, ceil = -Infinity
+    const n = remaining.length
+    for (let s = 0; s < 3 ** n; s++) {
+      const pts = { ...base }
+      let code = s
+      for (let k = 0; k < n; k++) {
+        const outcome = code % 3; code = Math.floor(code / 3)
+        const { team1, team2 } = remaining[k]
+        if (outcome === 0)      pts[team1] += 3
+        else if (outcome === 1) pts[team2] += 3
+        else                    { pts[team1] += 1; pts[team2] += 1 }
+      }
+      const third = names.map(nm => pts[nm]).sort((a, b) => b - a)[2] ?? 0
+      if (third < floor) floor = third
+      if (third > ceil)  ceil = third
+    }
+    return floor === Infinity ? { floor: 0, ceil: 0 } : { floor, ceil }
+  }
+  const thirdBounds = {}
+  for (const g of Object.keys(groups)) thirdBounds[g] = thirdPlaceBounds(g)
+
+  // 3b. Resolve clinch for 3rd-placed teams in finished groups against the best-3rd
+  // race (#20). A 3rd-place team is OUT once ≥8 other groups are *guaranteed* a
+  // better third (their floor beats it on points); it's Q once at most 7 other
+  // groups could *possibly* match-or-beat it; otherwise the race is still open.
+  for (const [g, teams] of Object.entries(standings)) {
+    if (!complete[g] || teams.length < 3) continue
+    const third = teams[2]
+    if (allGroupsDone) {
+      const gKey = g.replace('Group ', '')
+      third.clinch = top8.some(t => t.group === gKey && t.name === third.name)
+        ? 'qualified' : 'eliminated'
+      continue
+    }
+    const P = third.Pts
+    let guaranteedAbove = 0, possiblyAbove = 0
+    for (const og of Object.keys(groups)) {
+      if (og === g) continue
+      if (thirdBounds[og].floor > P) guaranteedAbove++
+      if (thirdBounds[og].ceil >= P) possiblyAbove++
+    }
+    third.clinch = guaranteedAbove >= 8 ? 'eliminated'
+                 : possiblyAbove   <= 7 ? 'qualified'
+                 : null
+  }
+
   // 3b. Live 3rd-place tracker (all groups with ≥1 match scored)
   const thirdsTracker = []
   for (const [g, teams] of Object.entries(standings)) {
@@ -129,6 +192,13 @@ function buildStandingsData(rawMatches) {
       thirdsTracker.push({ group: g, complete: complete[g], ...teams[2] })
   }
   thirdsTracker.sort((a, b) => b.Pts - a.Pts || b.GD - a.GD || b.GF - a.GF || a.name.localeCompare(b.name))
+
+  // The 8 best third-placed teams as they currently stand — used to fill the R32
+  // "Best 3rd" slots provisionally (like Winner/Runner-up slots show current
+  // leaders), rather than waiting for all 12 groups to finish.
+  const currentTop8 = thirdsTracker.slice(0, 8).map(t => ({
+    group: t.group.replace('Group ', ''), name: t.name,
+  }))
 
   // 4. Resolve placeholder team names in knockout matches
   const resolved = rawMatches.map(m => ({ ...m }))
@@ -153,12 +223,15 @@ function buildStandingsData(rawMatches) {
       return { name, confirmed: !!complete[g] }
     }
     const bm = ph.match(/^Best 3rd \(([A-L/]+)\)$/)
-    if (bm && allGroupsDone) {
+    if (bm) {
+      // Greedily assign the best available current third whose group is allowed for
+      // this slot. Confirmed only once every group is done (the assignment can still
+      // shuffle while the best-3rd race is open), so it shows provisionally first.
       const allowed = bm[1].split('/')
-      for (const t of top8) {
+      for (const t of currentTop8) {
         if (allowed.includes(t.group) && !assignedThirds.has(t.group)) {
           assignedThirds.add(t.group)
-          return { name: t.name, confirmed: true }
+          return { name: t.name, confirmed: allGroupsDone }
         }
       }
     }
@@ -176,8 +249,14 @@ function buildStandingsData(rawMatches) {
   // Cascade winners through bracket
   function getWinner(m) {
     if (!m || m.score1 === '' || m.score2 === '') return null
-    const s1 = Number(m.score1), s2 = Number(m.score2)
-    return s1 > s2 ? m.team1 : s2 > s1 ? m.team2 : null
+    const g1 = parseGoals(m.score1), g2 = parseGoals(m.score2)
+    if (g1 == null || g2 == null) return null
+    if (g1 > g2) return m.team1
+    if (g2 > g1) return m.team2
+    // Level on goals → decided by the penalty shootout, if entered.
+    const p1 = parsePens(m.score1), p2 = parsePens(m.score2)
+    if (p1 == null || p2 == null) return null
+    return p1 > p2 ? m.team1 : p2 > p1 ? m.team2 : null
   }
   function getLoser(m) {
     const w = getWinner(m)

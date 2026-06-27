@@ -15,52 +15,31 @@
         <div v-for="col in allColumns" :key="col.key"
           style="width:200px;flex-shrink:0;position:relative">
           <div v-for="(m, i) in col.matches" :key="m._origIdx"
-            :style="{ position: 'absolute', top: bracketTop(col.depth, i) + 'px', left: '6px', right: '6px', zIndex: editingIdx === m._origIdx ? 10 : 1 }">
+            :style="{ position: 'absolute', top: bracketTop(col.depth, i) + 'px', left: '6px', right: '6px', zIndex: 1 }">
 
-            <!-- Edit mode -->
-            <div v-if="editingIdx === m._origIdx"
-              style="background:var(--c-bg-edit);border:1px solid #3b82f644;border-left:2px solid #3b82f6;border-radius:6px;padding:8px;font-size:12px">
-              <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
-                <span style="color:var(--c-t3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">{{ COUNTRY_FLAGS[m.team1] ?? '' }} {{ m.team1 }}</span>
-                <input v-model="editBuf.score1" type="number" min="0" @keyup.enter="saveEdit(m._origIdx)"
-                  style="background:var(--c-bg-input);border:1px solid #3b82f655;color:var(--c-t4);border-radius:4px;padding:3px 0;font-size:15px;font-weight:700;font-family:Georgia,serif;width:34px;text-align:center;outline:none;flex-shrink:0;-moz-appearance:textfield"/>
-              </div>
-              <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-                <span style="color:var(--c-t3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">{{ COUNTRY_FLAGS[m.team2] ?? '' }} {{ m.team2 }}</span>
-                <input v-model="editBuf.score2" type="number" min="0" @keyup.enter="saveEdit(m._origIdx)"
-                  style="background:var(--c-bg-input);border:1px solid #3b82f655;color:var(--c-t4);border-radius:4px;padding:3px 0;font-size:15px;font-weight:700;font-family:Georgia,serif;width:34px;text-align:center;outline:none;flex-shrink:0;-moz-appearance:textfield"/>
-              </div>
-              <div style="display:flex;gap:4px">
-                <button @click="cancelEdit" style="flex:1;background:transparent;color:var(--c-t2);border:1px solid var(--c-border-solid);border-radius:4px;padding:3px 0;font-size:10px;cursor:pointer;font-family:Georgia,serif">Cancel</button>
-                <button v-if="hasScore(m._origIdx)" @click="clearScore(m._origIdx)" style="background:transparent;color:#ef4444;border:1px solid #7f1d1d;border-radius:4px;padding:3px 5px;font-size:10px;cursor:pointer;font-family:Georgia,serif">✕</button>
-                <button @click="saveEdit(m._origIdx)" style="flex:1;background:#1d4ed8;color:#fff;border:none;border-radius:4px;padding:3px 0;font-size:10px;cursor:pointer;font-family:Georgia,serif">Save</button>
-              </div>
-            </div>
-
-            <!-- View mode -->
-            <div v-else :style="{ background: col.isFinal ? 'var(--c-bg-deep)' : 'var(--c-bg-card)', border: col.isFinal ? '1px solid #f59e0b66' : `1px solid ${stageColor(m.stage).badge}44`, borderLeft: col.isFinal ? '2px solid #f59e0b' : `2px solid ${stageColor(m.stage).badge}`, borderRadius: '6px', overflow: 'hidden', fontSize: '12px' }">
+            <div :style="{ background: col.isFinal ? 'var(--c-bg-deep)' : 'var(--c-bg-card)', border: col.isFinal ? '1px solid #f59e0b66' : `1px solid ${stageColor(m.stage).badge}44`, borderLeft: col.isFinal ? '2px solid #f59e0b' : `2px solid ${stageColor(m.stage).badge}`, borderRadius: '6px', overflow: 'hidden', fontSize: '12px' }">
               <div :style="{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 8px', background: score1Wins(m._origIdx) ? 'var(--c-bg-win)' : 'transparent', borderBottom: '1px solid var(--c-row-sep-d)' }">
-                <span :style="{ color: hasScore(m._origIdx) ? (score1Wins(m._origIdx) ? 'var(--c-t5)' : 'var(--c-t0)') : (m.team1Confirmed === false ? 'var(--c-t1)' : 'var(--c-t3)'), fontStyle: m.team1Confirmed === false ? 'italic' : 'normal', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '130px', cursor: isReal(m.team1) ? 'pointer' : 'default' }"
+                <span :style="{ color: hasScore(m._origIdx) ? (score1Wins(m._origIdx) ? 'var(--c-t5)' : 'var(--c-t0)') : (m.team1Confirmed === false ? 'var(--c-t1)' : 'var(--c-t3)'), fontStyle: m.team1Confirmed === false ? 'italic' : 'normal', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '120px', cursor: isReal(m.team1) ? 'pointer' : 'default' }"
                   @click="isReal(m.team1) ? openSquad(m.team1) : null">
                   {{ COUNTRY_FLAGS[m.team1] ?? '' }} {{ m.team1 }}
                 </span>
-                <span v-if="hasScore(m._origIdx)" :style="{ fontSize: '13px', fontWeight: 700, color: score1Wins(m._origIdx) ? 'var(--c-t5)' : 'var(--c-t1)', flexShrink: 0, marginLeft: '4px' }">{{ scores[m._origIdx].score1 }}</span>
+                <span v-if="hasScore(m._origIdx)" :style="{ fontSize: '13px', fontWeight: 700, color: score1Wins(m._origIdx) ? 'var(--c-t5)' : 'var(--c-t1)', flexShrink: 0, marginLeft: '4px' }">{{ goalsOf(m._origIdx, 1) }}<span v-if="pensOf(m._origIdx, 1) != null" style="font-size:9px;font-weight:400;opacity:0.85">&nbsp;({{ pensOf(m._origIdx, 1) }})</span></span>
               </div>
               <div :style="{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 8px', background: score2Wins(m._origIdx) ? 'var(--c-bg-win)' : 'transparent', borderBottom: '1px solid var(--c-row-sep-d)' }">
-                <span :style="{ color: hasScore(m._origIdx) ? (score2Wins(m._origIdx) ? 'var(--c-t5)' : 'var(--c-t0)') : (m.team2Confirmed === false ? 'var(--c-t1)' : 'var(--c-t3)'), fontStyle: m.team2Confirmed === false ? 'italic' : 'normal', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '130px', cursor: isReal(m.team2) ? 'pointer' : 'default' }"
+                <span :style="{ color: hasScore(m._origIdx) ? (score2Wins(m._origIdx) ? 'var(--c-t5)' : 'var(--c-t0)') : (m.team2Confirmed === false ? 'var(--c-t1)' : 'var(--c-t3)'), fontStyle: m.team2Confirmed === false ? 'italic' : 'normal', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '120px', cursor: isReal(m.team2) ? 'pointer' : 'default' }"
                   @click="isReal(m.team2) ? openSquad(m.team2) : null">
                   {{ COUNTRY_FLAGS[m.team2] ?? '' }} {{ m.team2 }}
                 </span>
-                <span v-if="hasScore(m._origIdx)" :style="{ fontSize: '13px', fontWeight: 700, color: score2Wins(m._origIdx) ? 'var(--c-t5)' : 'var(--c-t1)', flexShrink: 0, marginLeft: '4px' }">{{ scores[m._origIdx].score2 }}</span>
+                <span v-if="hasScore(m._origIdx)" :style="{ fontSize: '13px', fontWeight: 700, color: score2Wins(m._origIdx) ? 'var(--c-t5)' : 'var(--c-t1)', flexShrink: 0, marginLeft: '4px' }">{{ goalsOf(m._origIdx, 2) }}<span v-if="pensOf(m._origIdx, 2) != null" style="font-size:9px;font-weight:400;opacity:0.85">&nbsp;({{ pensOf(m._origIdx, 2) }})</span></span>
               </div>
               <div style="border-top:1px solid var(--c-row-sep);padding:3px 8px">
                 <div style="display:flex;justify-content:space-between;align-items:center">
                   <span style="font-size:9px;color:var(--c-t0);letter-spacing:0.3px">{{ m.date }} · {{ m.time }}</span>
-                  <div @click="startEdit(m._origIdx)" style="color:var(--c-border-solid);font-size:11px;cursor:pointer;padding:1px 3px;border-radius:3px;transition:color 0.15s"
+                  <div @click="openMatchEdit(m._origIdx)" style="color:var(--c-border-solid);font-size:11px;cursor:pointer;padding:1px 3px;border-radius:3px;transition:color 0.15s"
                     @mouseenter="e => e.currentTarget.style.color = 'var(--c-accent)'"
                     @mouseleave="e => e.currentTarget.style.color = 'var(--c-border-solid)'">✎</div>
                 </div>
-                <div v-if="m.venue" style="font-size:9px;color:var(--c-border-solid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px">📍 {{ m.venue }}</div>
+                <div v-if="m.venue" style="font-size:9px;color:var(--c-t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px">📍 {{ m.venue }}</div>
               </div>
             </div>
 
@@ -76,42 +55,23 @@
           <div v-if="thirdPlace.venue" style="font-size:11px;color:var(--c-t0);margin-top:1px">📍 {{ thirdPlace.venue }}</div>
         </div>
 
-        <div v-if="editingIdx === 102"
-          style="background:var(--c-bg-edit);border:1px solid #3b82f644;border-left:2px solid #3b82f6;border-radius:6px;padding:12px;font-size:13px">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-            <span style="color:var(--c-t3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ COUNTRY_FLAGS[thirdPlace.team1] ?? '' }} {{ thirdPlace.team1 }}</span>
-            <input v-model="editBuf.score1" type="number" min="0" @keyup.enter="saveEdit(102)"
-              style="background:var(--c-bg-input);border:1px solid #3b82f655;color:var(--c-t4);border-radius:4px;padding:4px 0;font-size:18px;font-weight:700;font-family:Georgia,serif;width:40px;text-align:center;outline:none;flex-shrink:0;-moz-appearance:textfield"/>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-            <span style="color:var(--c-t3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ COUNTRY_FLAGS[thirdPlace.team2] ?? '' }} {{ thirdPlace.team2 }}</span>
-            <input v-model="editBuf.score2" type="number" min="0" @keyup.enter="saveEdit(102)"
-              style="background:var(--c-bg-input);border:1px solid #3b82f655;color:var(--c-t4);border-radius:4px;padding:4px 0;font-size:18px;font-weight:700;font-family:Georgia,serif;width:40px;text-align:center;outline:none;flex-shrink:0;-moz-appearance:textfield"/>
-          </div>
-          <div style="display:flex;gap:6px;justify-content:flex-end">
-            <button @click="cancelEdit" style="background:transparent;color:var(--c-t2);border:1px solid var(--c-border-solid);border-radius:4px;padding:5px 14px;font-size:11px;cursor:pointer;font-family:Georgia,serif">Cancel</button>
-            <button v-if="hasScore(102)" @click="clearScore(102)" style="background:transparent;color:#ef4444;border:1px solid #7f1d1d;border-radius:4px;padding:5px 14px;font-size:11px;cursor:pointer;font-family:Georgia,serif">Delete</button>
-            <button @click="saveEdit(102)" style="background:#1d4ed8;color:#fff;border:none;border-radius:4px;padding:5px 14px;font-size:11px;cursor:pointer;font-family:Georgia,serif">Save</button>
-          </div>
-        </div>
-
-        <div v-else style="background:var(--c-bg-card);border:1px solid #b4530933;border-left:2px solid #b45309;border-radius:6px;overflow:hidden;font-size:13px">
+        <div style="background:var(--c-bg-card);border:1px solid #b4530933;border-left:2px solid #b45309;border-radius:6px;overflow:hidden;font-size:13px">
           <div :style="{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 12px', background: score1Wins(102) ? 'var(--c-bg-win)' : 'transparent', borderBottom: '1px solid var(--c-row-sep-d)' }">
             <span :style="{ color: hasScore(102) ? (score1Wins(102) ? 'var(--c-t5)' : 'var(--c-t1)') : 'var(--c-t3)', cursor: isReal(thirdPlace.team1) ? 'pointer' : 'default' }"
               @click="isReal(thirdPlace.team1) ? openSquad(thirdPlace.team1) : null">
               {{ COUNTRY_FLAGS[thirdPlace.team1] ?? '' }} {{ thirdPlace.team1 }}
             </span>
-            <span v-if="hasScore(102)" :style="{ fontWeight: 700, color: score1Wins(102) ? 'var(--c-t5)' : 'var(--c-t2)' }">{{ scores[102].score1 }}</span>
+            <span v-if="hasScore(102)" :style="{ fontWeight: 700, color: score1Wins(102) ? 'var(--c-t5)' : 'var(--c-t2)' }">{{ goalsOf(102, 1) }}<span v-if="pensOf(102, 1) != null" style="font-size:10px;font-weight:400;opacity:0.85">&nbsp;({{ pensOf(102, 1) }})</span></span>
           </div>
           <div :style="{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 12px', background: score2Wins(102) ? 'var(--c-bg-win)' : 'transparent', borderBottom: '1px solid var(--c-row-sep-d)' }">
             <span :style="{ color: hasScore(102) ? (score2Wins(102) ? 'var(--c-t5)' : 'var(--c-t1)') : 'var(--c-t3)', cursor: isReal(thirdPlace.team2) ? 'pointer' : 'default' }"
               @click="isReal(thirdPlace.team2) ? openSquad(thirdPlace.team2) : null">
               {{ COUNTRY_FLAGS[thirdPlace.team2] ?? '' }} {{ thirdPlace.team2 }}
             </span>
-            <span v-if="hasScore(102)" :style="{ fontWeight: 700, color: score2Wins(102) ? 'var(--c-t5)' : 'var(--c-t2)' }">{{ scores[102].score2 }}</span>
+            <span v-if="hasScore(102)" :style="{ fontWeight: 700, color: score2Wins(102) ? 'var(--c-t5)' : 'var(--c-t2)' }">{{ goalsOf(102, 2) }}<span v-if="pensOf(102, 2) != null" style="font-size:10px;font-weight:400;opacity:0.85">&nbsp;({{ pensOf(102, 2) }})</span></span>
           </div>
           <div style="display:flex;justify-content:flex-end;padding:3px 8px;border-top:1px solid var(--c-row-sep)">
-            <div @click="startEdit(102)" style="color:var(--c-border-solid);font-size:11px;cursor:pointer;padding:1px 3px;border-radius:3px;transition:color 0.15s"
+            <div @click="openMatchEdit(102)" style="color:var(--c-border-solid);font-size:11px;cursor:pointer;padding:1px 3px;border-radius:3px;transition:color 0.15s"
               @mouseenter="e => e.currentTarget.style.color = 'var(--c-accent)'"
               @mouseleave="e => e.currentTarget.style.color = 'var(--c-border-solid)'">✎</div>
           </div>
@@ -125,20 +85,19 @@
 <script setup>
 import { computed, inject } from 'vue'
 import { COUNTRY_FLAGS, STAGE_COLORS } from '../data/constants.js'
+import { parseGoals, parsePens } from '../utils/score.js'
 
-const HALF_SLOT   = 108  // px per R32 slot in a half-bracket; real card ≈100px, so gap ≈ HALF_SLOT−100
+const HALF_SLOT   = 132  // px per R32 slot. Cards are absolutely positioned, so the
+                         // gap between them is HALF_SLOT − card height. The card's last
+                         // line is the venue, so HALF_SLOT must exceed the full card
+                         // height (incl. venue ≈118px) or the next card covers the venue.
 const BRACKET_CARD = 82  // card height (used only for vertical centering, not the gap)
-const HALF_HEIGHT  = 8 * HALF_SLOT  // 864px
+const HALF_HEIGHT  = 8 * HALF_SLOT  // 1056px
 
-const scores       = inject('scores')
-const editingIdx   = inject('editingIdx')
-const editBuf      = inject('editBuf')
+const scores        = inject('scores')
 const standingsData = inject('standingsData')
-const startEdit    = inject('startEdit')
-const saveEdit     = inject('saveEdit')
-const cancelEdit   = inject('cancelEdit')
-const clearScore   = inject('clearScore')
-const openSquad    = inject('openSquad')
+const openMatchEdit = inject('openMatchEdit')
+const openSquad     = inject('openSquad')
 
 // 9 columns: R32 | R16 | QF | SF | Final | SF | QF | R16 | R32
 const allColumns = computed(() => {
@@ -169,14 +128,20 @@ function hasScore(idx) {
   const s = scores.value[idx]
   return s != null && s.score1 !== '' && s.score2 !== ''
 }
-function score1Wins(idx) {
-  const s = scores.value[idx]
-  return hasScore(idx) && Number(s.score1) > Number(s.score2)
+function goalsOf(idx, n) { return parseGoals(scores.value[idx]?.['score' + n]) }
+function pensOf(idx, n)  { return parsePens(scores.value[idx]?.['score' + n]) }
+// Winner is by goals, then penalty shootout if goals are level (knockout).
+function winnerSide(idx) {
+  if (!hasScore(idx)) return 0
+  const g1 = goalsOf(idx, 1), g2 = goalsOf(idx, 2)
+  if (g1 > g2) return 1
+  if (g2 > g1) return 2
+  const p1 = pensOf(idx, 1), p2 = pensOf(idx, 2)
+  if (p1 == null || p2 == null) return 0
+  return p1 > p2 ? 1 : p2 > p1 ? 2 : 0
 }
-function score2Wins(idx) {
-  const s = scores.value[idx]
-  return hasScore(idx) && Number(s.score2) > Number(s.score1)
-}
+function score1Wins(idx) { return winnerSide(idx) === 1 }
+function score2Wins(idx) { return winnerSide(idx) === 2 }
 function isReal(name) {
   return !['TBD', 'Winner', 'Runner', 'Best'].some(p => name.startsWith(p))
 }
