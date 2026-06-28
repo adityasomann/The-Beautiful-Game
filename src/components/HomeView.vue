@@ -82,13 +82,15 @@
             @mouseenter="e => e.currentTarget.style.background = 'var(--c-bg-hover)'"
             @mouseleave="e => e.currentTarget.style.background = 'var(--c-bg-card)'">
             <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600">
-              <span :style="{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'right', color: score1Wins(m._origIdx) ? 'var(--c-t5)' : 'var(--c-t1)' }">
+              <span :style="{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'right', color: score1Wins(m._origIdx) ? 'var(--c-t5)' : (winnerSide(m._origIdx) ? 'var(--c-t0)' : 'var(--c-t1)'), fontWeight: score1Wins(m._origIdx) ? 700 : 600 }">
                 {{ COUNTRY_FLAGS[m.team1] ?? '' }} {{ m.team1 }}
               </span>
+              <span v-if="score1Wins(m._origIdx)" style="color:#22c55e;font-size:12px;flex-shrink:0" title="Winner">✓</span>
               <span style="background:var(--c-bg-deep);border:1px solid var(--c-border);border-radius:5px;padding:3px 10px;font-size:14px;font-weight:700;color:var(--c-t4);white-space:nowrap;flex-shrink:0">
                 {{ goalsOf(m._origIdx, 1) }} – {{ goalsOf(m._origIdx, 2) }}<span v-if="pensOf(m._origIdx, 1) != null" style="font-size:10px;font-weight:400;opacity:0.8">&nbsp;({{ pensOf(m._origIdx, 1) }}–{{ pensOf(m._origIdx, 2) }}p)</span>
               </span>
-              <span :style="{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: score2Wins(m._origIdx) ? 'var(--c-t5)' : 'var(--c-t1)' }">
+              <span v-if="score2Wins(m._origIdx)" style="color:#22c55e;font-size:12px;flex-shrink:0" title="Winner">✓</span>
+              <span :style="{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: score2Wins(m._origIdx) ? 'var(--c-t5)' : (winnerSide(m._origIdx) ? 'var(--c-t0)' : 'var(--c-t1)'), fontWeight: score2Wins(m._origIdx) ? 700 : 600 }">
                 {{ m.team2 }} {{ COUNTRY_FLAGS[m.team2] ?? '' }}
               </span>
               <div @click.stop="openMatchEdit(m._origIdx)" title="Edit score"
