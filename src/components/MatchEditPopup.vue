@@ -26,8 +26,8 @@
         </div>
       </div>
 
-      <!-- Penalty shootout (only when goals are level) -->
-      <div v-if="isDraw" style="margin-top:16px;border-top:1px dashed var(--c-border-solid);padding-top:14px">
+      <!-- Penalty shootout (knockout rounds only, and only when goals are level) -->
+      <div v-if="isDraw && isKnockout" style="margin-top:16px;border-top:1px dashed var(--c-border-solid);padding-top:14px">
         <div style="font-size:10px;letter-spacing:2px;color:#f59e0b;text-transform:uppercase;margin-bottom:10px">⚽ Penalty Shootout</div>
         <div style="display:flex;flex-direction:column;gap:10px">
           <div v-for="n in [1, 2]" :key="n" style="display:flex;align-items:center;gap:10px">
@@ -78,6 +78,8 @@ const match = computed(() =>
 
 function teamName(n) { return match.value?.['team' + n] ?? '' }
 function confirmed(n) { return match.value?.['team' + n + 'Confirmed'] }
+
+const isKnockout = computed(() => !!match.value && match.value.stage !== 'Group Stage')
 
 const isDraw = computed(() => {
   const a = editBuf.value.score1, b = editBuf.value.score2

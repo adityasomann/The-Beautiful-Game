@@ -45,6 +45,10 @@
               <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--c-t4)">
                 {{ m.team2 }} {{ COUNTRY_FLAGS[m.team2] ?? '' }}
               </span>
+              <div @click.stop="openMatchEdit(m._origIdx)" title="Edit score"
+                style="flex-shrink:0;color:var(--c-border-solid);font-size:12px;cursor:pointer;padding:0 2px"
+                @mouseenter="e => e.currentTarget.style.color = 'var(--c-accent)'"
+                @mouseleave="e => e.currentTarget.style.color = 'var(--c-border-solid)'">✎</div>
             </div>
             <div v-if="m.group || m.venue" style="text-align:center;margin-top:5px;font-size:10px;color:var(--c-t0)">
               {{ [m.group, m.venue?.split(',')[0]].filter(Boolean).join(' · ') }}
@@ -87,6 +91,10 @@
               <span :style="{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: score2Wins(m._origIdx) ? 'var(--c-t5)' : 'var(--c-t1)' }">
                 {{ m.team2 }} {{ COUNTRY_FLAGS[m.team2] ?? '' }}
               </span>
+              <div @click.stop="openMatchEdit(m._origIdx)" title="Edit score"
+                style="flex-shrink:0;color:var(--c-border-solid);font-size:12px;cursor:pointer;padding:0 2px"
+                @mouseenter="e => e.currentTarget.style.color = 'var(--c-accent)'"
+                @mouseleave="e => e.currentTarget.style.color = 'var(--c-border-solid)'">✎</div>
             </div>
             <div style="text-align:center;margin-top:5px;font-size:10px;color:var(--c-t0);letter-spacing:0.5px">
               {{ formatDateLabel(m.date) }} · {{ m.group ?? m.stage }}
@@ -128,6 +136,7 @@ const standingsData = inject('standingsData')
 const TODAY         = inject('TODAY')
 const setView       = inject('setView')
 const goToMatch     = inject('goToMatch')
+const openMatchEdit = inject('openMatchEdit')
 
 const navCards = [
   { view: 'schedule',  icon: '📅', label: 'Schedule',        desc: '72 group stage matches' },

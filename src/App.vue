@@ -192,11 +192,12 @@ function openMatchEdit(i) {
 }
 
 async function saveEdit(idx) {
-  // Penalties only count when the goals are level; otherwise drop them.
+  // Penalties only apply to knockout matches level on goals; otherwise drop them.
   const g1 = editBuf.value.score1, g2 = editBuf.value.score2
-  const level = g1 !== '' && g2 !== '' && Number(g1) === Number(g2)
-  const s1 = formatScore(g1, level ? editBuf.value.pen1 : '')
-  const s2 = formatScore(g2, level ? editBuf.value.pen2 : '')
+  const isKO = standingsData.value.resolvedMatches[idx]?.stage !== 'Group Stage'
+  const keepPens = isKO && g1 !== '' && g2 !== '' && Number(g1) === Number(g2)
+  const s1 = formatScore(g1, keepPens ? editBuf.value.pen1 : '')
+  const s2 = formatScore(g2, keepPens ? editBuf.value.pen2 : '')
   scores.value = { ...scores.value, [idx]: { score1: s1, score2: s2 } }
   try {
     await fetch(`${API_URL}/scores/${idx}`, {
