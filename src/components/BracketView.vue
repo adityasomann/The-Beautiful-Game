@@ -17,7 +17,8 @@
           <div v-for="(m, i) in col.matches" :key="m._origIdx"
             :style="{ position: 'absolute', top: bracketTop(col.depth, i) + 'px', left: '6px', right: '6px', zIndex: 1 }">
 
-            <div :style="{ background: col.isFinal ? 'var(--c-bg-deep)' : 'var(--c-bg-card)', border: col.isFinal ? '1px solid #f59e0b66' : `1px solid ${stageColor(m.stage).badge}44`, borderLeft: col.isFinal ? '2px solid #f59e0b' : `2px solid ${stageColor(m.stage).badge}`, borderRadius: '6px', overflow: 'hidden', fontSize: '12px' }">
+            <div :id="'bracket-match-' + m._origIdx"
+              :style="{ background: col.isFinal ? 'var(--c-bg-deep)' : 'var(--c-bg-card)', border: flashingIdx === m._origIdx ? '1px solid var(--c-accent)' : (col.isFinal ? '1px solid #f59e0b66' : `1px solid ${stageColor(m.stage).badge}44`), borderLeft: col.isFinal ? '2px solid #f59e0b' : `2px solid ${stageColor(m.stage).badge}`, borderRadius: '6px', overflow: 'hidden', fontSize: '12px', boxShadow: flashingIdx === m._origIdx ? '0 0 0 3px var(--c-accent)' : 'none', transition: 'box-shadow 0.3s, border-color 0.3s' }">
               <div :style="{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 8px', background: score1Wins(m._origIdx) ? 'var(--c-bg-win)' : 'transparent', borderBottom: '1px solid var(--c-row-sep-d)' }">
                 <span :style="{ color: hasScore(m._origIdx) ? (score1Wins(m._origIdx) ? 'var(--c-t5)' : 'var(--c-t0)') : (m.team1Confirmed === false ? 'var(--c-t1)' : 'var(--c-t3)'), fontStyle: m.team1Confirmed === false ? 'italic' : 'normal', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '120px', cursor: isReal(m.team1) ? 'pointer' : 'default' }"
                   @click="isReal(m.team1) ? openSquad(m.team1) : null">
@@ -55,7 +56,8 @@
           <div v-if="thirdPlace.venue" style="font-size:11px;color:var(--c-t0);margin-top:1px">📍 {{ thirdPlace.venue }}</div>
         </div>
 
-        <div style="background:var(--c-bg-card);border:1px solid #b4530933;border-left:2px solid #b45309;border-radius:6px;overflow:hidden;font-size:13px">
+        <div id="bracket-match-102"
+          :style="{ background: 'var(--c-bg-card)', border: flashingIdx === 102 ? '1px solid var(--c-accent)' : '1px solid #b4530933', borderLeft: '2px solid #b45309', borderRadius: '6px', overflow: 'hidden', fontSize: '13px', boxShadow: flashingIdx === 102 ? '0 0 0 3px var(--c-accent)' : 'none', transition: 'box-shadow 0.3s, border-color 0.3s' }">
           <div :style="{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 12px', background: score1Wins(102) ? 'var(--c-bg-win)' : 'transparent', borderBottom: '1px solid var(--c-row-sep-d)' }">
             <span :style="{ color: hasScore(102) ? (score1Wins(102) ? 'var(--c-t5)' : 'var(--c-t1)') : 'var(--c-t3)', cursor: isReal(thirdPlace.team1) ? 'pointer' : 'default' }"
               @click="isReal(thirdPlace.team1) ? openSquad(thirdPlace.team1) : null">
@@ -83,7 +85,7 @@
 </template>
 
 <script setup>
-import { computed, inject } from 'vue'
+import { computed, inject, ref, onMounted, nextTick } from 'vue'
 import { COUNTRY_FLAGS, STAGE_COLORS } from '../data/constants.js'
 import { parseGoals, parsePens } from '../utils/score.js'
 
@@ -98,6 +100,24 @@ const scores        = inject('scores')
 const standingsData = inject('standingsData')
 const openMatchEdit = inject('openMatchEdit')
 const openSquad     = inject('openSquad')
+const highlightIdx  = inject('highlightIdx')
+
+const flashingIdx = ref(null)
+
+// When arriving from elsewhere (e.g. the home page), scroll the target knockout
+// match into view and flash it.
+onMounted(async () => {
+  const idx = highlightIdx.value
+  if (idx == null) return
+  await nextTick()
+  setTimeout(() => {
+    const el = document.getElementById(`bracket-match-${idx}`)
+    if (!el) return
+    el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' })
+    flashingIdx.value = idx
+    setTimeout(() => { flashingIdx.value = null; highlightIdx.value = null }, 2400)
+  }, 80)
+})
 
 // 9 columns: R32 | R16 | QF | SF | Final | SF | QF | R16 | R32
 const allColumns = computed(() => {

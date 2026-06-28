@@ -245,5 +245,10 @@ provide('openSquad',   (c) => { squadCountry.value = c })
 provide('openGroup',   (g) => { groupPopup.value = g })
 provide('setView',     (v) => { view.value = v })
 provide('highlightIdx', highlightIdx)
-provide('goToMatch',  (idx) => { highlightIdx.value = idx; view.value = 'schedule' })
+provide('goToMatch',  (idx) => {
+  highlightIdx.value = idx
+  // Knockout matches live in the bracket; group matches in the schedule.
+  const ko = standingsData.value.resolvedMatches[idx]?.stage !== 'Group Stage'
+  view.value = ko ? 'bracket' : 'schedule'
+})
 </script>

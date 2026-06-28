@@ -50,8 +50,8 @@
                 @mouseenter="e => e.currentTarget.style.color = 'var(--c-accent)'"
                 @mouseleave="e => e.currentTarget.style.color = 'var(--c-border-solid)'">✎</div>
             </div>
-            <div v-if="m.group || m.venue" style="text-align:center;margin-top:5px;font-size:10px;color:var(--c-t0)">
-              {{ [m.group, m.venue?.split(',')[0]].filter(Boolean).join(' · ') }}
+            <div style="text-align:center;margin-top:5px;font-size:10px;color:var(--c-t0)">
+              {{ [m.group || m.stage, m.venue?.split(',')[0]].filter(Boolean).join(' · ') }}
             </div>
             <div v-if="countdown(m)" style="display:flex;justify-content:center;margin-top:8px">
               <span :style="{
@@ -97,7 +97,7 @@
                 @mouseleave="e => e.currentTarget.style.color = 'var(--c-border-solid)'">✎</div>
             </div>
             <div style="text-align:center;margin-top:5px;font-size:10px;color:var(--c-t0);letter-spacing:0.5px">
-              {{ formatDateLabel(m.date) }} · {{ m.group ?? m.stage }}
+              {{ formatDateLabel(m.date) }} · {{ m.group || m.stage }}
             </div>
           </div>
         </div>
