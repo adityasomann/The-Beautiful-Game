@@ -82,7 +82,7 @@
                 {{ COUNTRY_FLAGS[m.team1] ?? '' }} {{ m.team1 }}
               </span>
               <span style="background:var(--c-bg-deep);border:1px solid var(--c-border);border-radius:5px;padding:3px 10px;font-size:14px;font-weight:700;color:var(--c-t4);white-space:nowrap;flex-shrink:0">
-                {{ scores[m._origIdx].score1 }} – {{ scores[m._origIdx].score2 }}
+                {{ goalsOf(m._origIdx, 1) }} – {{ goalsOf(m._origIdx, 2) }}<span v-if="pensOf(m._origIdx, 1) != null" style="font-size:10px;font-weight:400;opacity:0.8">&nbsp;({{ pensOf(m._origIdx, 1) }}–{{ pensOf(m._origIdx, 2) }}p)</span>
               </span>
               <span :style="{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: score2Wins(m._origIdx) ? 'var(--c-t5)' : 'var(--c-t1)' }">
                 {{ m.team2 }} {{ COUNTRY_FLAGS[m.team2] ?? '' }}
@@ -118,6 +118,7 @@
 <script setup>
 import { inject, computed } from 'vue'
 import { COUNTRY_FLAGS, STAGE_COLORS, matchStartMs, MATCH_DURATION_MS } from '../data/constants.js'
+import { parseGoals, parsePens } from '../utils/score.js'
 import { useNow } from '../composables/useNow.js'
 
 const { nowMs } = useNow({ interval: 1000 })
@@ -166,25 +167,28 @@ const recentResults = computed(() => {
 
 const stats = computed(() => {
   const played  = allMatches.value.filter(m => hasScore(m._origIdx))
-  const goals   = played.reduce((s, m) => s + Number(scores.value[m._origIdx].score1) + Number(scores.value[m._origIdx].score2), 0)
+  const goals   = played.reduce((s, m) =>
+    s + (parseGoals(scores.value[m._origIdx].score1) ?? 0) + (parseGoals(scores.value[m._origIdx].score2) ?? 0), 0)
   const groupsDone  = Object.values(standingsData.value.complete).filter(Boolean).length
   const totalGroups = Object.keys(standingsData.value.complete).length || 12
   const avgGoals    = played.length > 0 ? (goals / played.length).toFixed(1) : '—'
 
-  const knocked = new Set()
-  const rm = standingsData.value.resolvedMatches
+  // A team is out once it's mathematically eliminated in the group stage, or it
+  // loses a knockout match (penalty shootouts included).
+  const eliminated = new Set()
+  for (const teams of Object.values(standingsData.value.standings))
+    for (const t of teams) if (t.clinch === 'eliminated') eliminated.add(t.name)
   for (let i = 72; i <= 103; i++) {
-    const m = rm[i]
-    if (!hasScore(i)) continue
-    const s1 = Number(scores.value[i].score1), s2 = Number(scores.value[i].score2)
-    if (s1 !== s2) knocked.add(s1 < s2 ? m.team1 : m.team2)
+    if (i === 102) continue // 3rd-place playoff eliminates no one new (both already out)
+    const loser = knockoutLoser(i)
+    if (loser) eliminated.add(loser)
   }
 
   return [
-    { label: 'Matches Played', value: played.length,     color: '#3b82f6', sub: `of 104` },
-    { label: 'Goals Scored',   value: goals,             color: '#22c55e', sub: `${avgGoals}/match` },
-    { label: 'Groups Done',    value: groupsDone,        color: '#f59e0b', sub: `of ${totalGroups}` },
-    { label: 'Teams Left',     value: 48 - knocked.size, color: 'var(--c-t4)', sub: 'in tournament' },
+    { label: 'Matches Played', value: played.length,           color: '#3b82f6', sub: `of 104` },
+    { label: 'Goals Scored',   value: goals,                   color: '#22c55e', sub: `${avgGoals}/match` },
+    { label: 'Groups Done',    value: groupsDone,              color: '#f59e0b', sub: `of ${totalGroups}` },
+    { label: 'Teams Left',     value: 48 - eliminated.size,    color: 'var(--c-t4)', sub: 'in tournament' },
   ]
 })
 
@@ -193,14 +197,27 @@ function hasScore(idx) {
   return s != null && s.score1 !== '' && s.score2 !== ''
 }
 
-function score1Wins(idx) {
-  const s = scores.value[idx]
-  return hasScore(idx) && Number(s.score1) > Number(s.score2)
-}
+function goalsOf(idx, n) { return parseGoals(scores.value[idx]?.['score' + n]) }
+function pensOf(idx, n)  { return parsePens(scores.value[idx]?.['score' + n]) }
 
-function score2Wins(idx) {
-  const s = scores.value[idx]
-  return hasScore(idx) && Number(s.score2) > Number(s.score1)
+// 1 = team1 wins, 2 = team2 wins, 0 = no result yet (goals, then penalties).
+function winnerSide(idx) {
+  if (!hasScore(idx)) return 0
+  const g1 = goalsOf(idx, 1), g2 = goalsOf(idx, 2)
+  if (g1 > g2) return 1
+  if (g2 > g1) return 2
+  const p1 = pensOf(idx, 1), p2 = pensOf(idx, 2)
+  if (p1 == null || p2 == null) return 0
+  return p1 > p2 ? 1 : p2 > p1 ? 2 : 0
+}
+function score1Wins(idx) { return winnerSide(idx) === 1 }
+function score2Wins(idx) { return winnerSide(idx) === 2 }
+
+function knockoutLoser(idx) {
+  const side = winnerSide(idx)
+  if (side === 0) return null
+  const m = standingsData.value.resolvedMatches[idx]
+  return side === 1 ? m.team2 : m.team1
 }
 
 function isLive(m) {
