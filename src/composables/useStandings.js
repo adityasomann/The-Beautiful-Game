@@ -1,5 +1,6 @@
 import { computed } from 'vue'
 import { parseGoals, parsePens } from '../utils/score.js'
+import { THIRD_PLACE_TABLE, THIRD_PLACE_WINNERS } from '../data/thirdPlaceTable.js'
 
 export function useStandings(matchesWithScores) {
   const standingsData = computed(() => buildStandingsData(matchesWithScores.value))
@@ -200,6 +201,17 @@ function buildStandingsData(rawMatches) {
     group: t.group.replace('Group ', ''), name: t.name,
   }))
 
+  // Official FIFA assignment of the 8 qualifying thirds to the group winners they
+  // face (#29). Keyed by the sorted set of the 8 qualifying groups; the table
+  // value lists the third's group for each winner in THIRD_PLACE_WINNERS order.
+  // winnerToThird maps e.g. 'E' -> 'D' meaning Winner E plays the third of Group D.
+  const winnerToThird = {}
+  if (currentTop8.length === 8) {
+    const key = currentTop8.map(t => t.group).sort().join('')
+    const assign = THIRD_PLACE_TABLE[key]
+    if (assign) THIRD_PLACE_WINNERS.forEach((w, i) => { winnerToThird[w] = assign[i] })
+  }
+
   // The best-3rd slot assignment is locked once the eight qualifying thirds are
   // settled. That's exactly when 8 third-place teams are guaranteed qualified
   // (#20): all 8 are then from finished groups, so their identities, final goal
@@ -211,12 +223,12 @@ function buildStandingsData(rawMatches) {
 
   // 4. Resolve placeholder team names in knockout matches
   const resolved = rawMatches.map(m => ({ ...m }))
-  const assignedThirds = new Set()
 
-  // Returns { name, confirmed } or null.
+  // Returns { name, confirmed } or null. `winnerGroup` is the group letter of this
+  // match's group-winner side, used to pick the right third via the official table.
   // confirmed=true  → group is finished, slot is locked in
   // confirmed=false → group in progress, showing current leader provisionally
-  function resolvePlaceholder(ph) {
+  function resolvePlaceholder(ph, winnerGroup) {
     const wm = ph.match(/^Winner ([A-L])$/)
     if (wm) {
       const g = `Group ${wm[1]}`
@@ -233,15 +245,12 @@ function buildStandingsData(rawMatches) {
     }
     const bm = ph.match(/^Best 3rd \(([A-L/]+)\)$/)
     if (bm) {
-      // Greedily assign the best available current third whose group is allowed for
-      // this slot. Confirmed only once every group is done (the assignment can still
-      // shuffle while the best-3rd race is open), so it shows provisionally first.
-      const allowed = bm[1].split('/')
-      for (const t of currentTop8) {
-        if (allowed.includes(t.group) && !assignedThirds.has(t.group)) {
-          assignedThirds.add(t.group)
-          return { name: t.name, confirmed: bestThirdLocked }
-        }
+      // Official FIFA table: this slot's group winner determines which group's third
+      // plays here. Confirmed only once the 8 qualifying thirds are settled (#23).
+      const thirdGroup = winnerGroup ? winnerToThird[winnerGroup] : null
+      if (thirdGroup && bm[1].split('/').includes(thirdGroup)) {
+        const name = standings[`Group ${thirdGroup}`]?.[2]?.name
+        if (name) return { name, confirmed: bestThirdLocked }
       }
     }
     return null
@@ -249,8 +258,9 @@ function buildStandingsData(rawMatches) {
 
   // Resolve R32 placeholders
   for (let i = 72; i <= 87; i++) {
-    const r1 = resolvePlaceholder(resolved[i].team1)
-    const r2 = resolvePlaceholder(resolved[i].team2)
+    const winnerGroup = resolved[i].team1.match(/^Winner ([A-L])$/)?.[1] ?? null
+    const r1 = resolvePlaceholder(resolved[i].team1, winnerGroup)
+    const r2 = resolvePlaceholder(resolved[i].team2, winnerGroup)
     if (r1) resolved[i] = { ...resolved[i], team1: r1.name, team1Confirmed: r1.confirmed }
     if (r2) resolved[i] = { ...resolved[i], team2: r2.name, team2Confirmed: r2.confirmed }
   }
