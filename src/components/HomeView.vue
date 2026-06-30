@@ -150,15 +150,18 @@ const allMatches = computed(() =>
   standingsData.value.resolvedMatches.map((m, i) => ({ ...m, _origIdx: i }))
 )
 
+const startMs = m => matchStartMs(m.date, m.time) ?? Infinity
+
 const featuredMatches = computed(() => {
   const todayMs = allMatches.value.filter(m => m.date === TODAY)
+    .sort((a, b) => startMs(a) - startMs(b)) // chronological by kickoff
   if (todayMs.length > 0) {
-    // Live games float to the top; everything else keeps its schedule order.
+    // Live games float to the top; the rest stay ordered by kickoff time.
     return [...todayMs.filter(m => isLive(m)), ...todayMs.filter(m => !isLive(m))]
   }
   const future = allMatches.value
     .filter(m => m.date > TODAY && !hasScore(m._origIdx))
-    .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
+    .sort((a, b) => a.date.localeCompare(b.date) || startMs(a) - startMs(b))
   if (!future.length) return []
   return future.filter(m => m.date === future[0].date)
 })
